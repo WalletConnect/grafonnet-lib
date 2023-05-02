@@ -184,6 +184,22 @@ local fieldConfig = import '../field_config.libsonnet';
   },
   addThresholds(steps):: std.foldl(function(p, s) p.addThreshold(s), steps, self),
 
+  addPanelThreshold(
+    op,
+    value,
+    colorMode = 'critical',
+    visible   = true
+  ):: self {
+    thresholds+: [
+      {
+        op:       op,
+        value:    value,
+        colorMode: colorMode,
+        visible:   visible,
+      },
+    ],
+  },
+
   withSoftLimit(
     axisSoftMin = 0,
     axisSoftMax = 100,
