@@ -221,4 +221,14 @@ local fieldConfig = import '../field_config.libsonnet';
       },
     },
   },
+
+  withSpanNulls(spanNulls):: self {
+    fieldConfig+: {
+      defaults+: {
+        custom+: {
+          spanNulls: spanNulls,
+        },
+      },
+    },
+  },
 } + panel
