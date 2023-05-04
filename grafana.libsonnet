@@ -7,6 +7,7 @@
   fieldConfig::             import 'field_config.libsonnet',
   layout::                  import 'layout.libsonnet',
   link::                    import 'link.libsonnet',
+  override::                import 'override.libsonnet',
   row::                     import 'row.libsonnet',
   template::                import 'template.libsonnet',
   timepicker::              import 'timepicker.libsonnet',

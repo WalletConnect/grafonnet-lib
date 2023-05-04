@@ -173,6 +173,7 @@ local fieldConfig = import '../field_config.libsonnet';
     options+:   options.options,
   },
 
+  //////////////////////////////////////////////////////////////////////////////
   // Thresholds
   setThresholds(baseColor, steps):: self + {
     fieldConfig+: {
@@ -210,6 +211,17 @@ local fieldConfig = import '../field_config.libsonnet';
   },
   addThresholds(steps):: std.foldl(function(p, s) p.addThreshold(s), steps, self),
 
+  //////////////////////////////////////////////////////////////////////////////
+  // Overrides
+  addOverride(override):: self {
+    fieldConfig+: {
+      overrides+: [override],
+    },
+  },
+  addOverrides(overrides):: std.foldl(function(p, s) p.addOverride(s), overrides, self),
+
+  //////////////////////////////////////////////////////////////////////////////
+  // Panel Thresholds
   addPanelThreshold(
     op,
     value,
