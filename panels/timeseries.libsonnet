@@ -91,7 +91,7 @@ local fieldConfig = import '../field_config.libsonnet';
           [if axisWidth != null         then 'axisWidth']: axisWidth,
           [if barAlignment != null      then 'barAlignment']: barAlignment,
           [if drawStyle != null         then 'drawStyle']: drawStyle,
-          [if fillOpacity != null        then 'fillOpacity']: fillOpacity,
+          [if fillOpacity != null       then 'fillOpacity']: fillOpacity,
           [if gradientMode != null      then 'gradientMode']: gradientMode,
           [if hideFrom != null          then 'hideFrom']: hideFrom,
           [if hideFrom != null          then 'hideFrom']: hideFrom,
@@ -173,6 +173,32 @@ local fieldConfig = import '../field_config.libsonnet';
     options+:   options.options,
   },
 
+  // Thresholds
+  setThresholds(baseColor, steps):: self + {
+    fieldConfig+: {
+      defaults+: {
+        thresholds: {
+          steps: [
+            {
+              color: baseColor,
+              value: null
+            }
+          ] + steps,
+        }
+      },
+    },
+  },
+  withThresholdStyle(style):: self {
+    fieldConfig+: {
+      defaults+: {
+        custom+: {
+          thresholdsStyle+: {
+            mode: style,
+          },
+        },
+      },
+    },
+  },
   addThreshold(step):: self {
     fieldConfig+: {
       defaults+: {

@@ -24,20 +24,21 @@
    * @method addMappings(mappings) Adds an array of value mappings.
    */
   new_default(
-    color             = null,
-    custom            = {},
-    decimals          = null,
-    description       = null,
-    displayName       = null,
-    displayNameFromDS = null,
-    filterable        = null,
-    min               = null,
-    max               = null,
-    noValue           = null,
-    path              = null,
-    unit              = null,
-    thresholds        = null,
-    writeable         = null,
+    color               = null,
+    custom              = {},
+    decimals            = null,
+    description         = null,
+    displayName         = null,
+    displayNameFromDS   = null,
+    filterable          = null,
+    min                 = null,
+    max                 = null,
+    noValue             = null,
+    path                = null,
+    unit                = null,
+    thresholds          = null,
+    thresholdsBaseColor = 'green',
+    writeable           = null,
   ):: {
     color: if color != null then color else {
       mode: $.fieldColorModeId.paletteClassic,
@@ -59,13 +60,23 @@
       mode: $.thresholdMode.absolute,
       steps: [
         {
-          color: "green",
+          color: thresholdsBaseColor,
           value: null
         }
       ]
     },
 
     // Thresholds
+    setThresholds(baseColor, steps):: self + {
+      thresholds: {
+        steps: [
+          {
+            color: baseColor,
+            value: null
+          }
+        ] + steps,
+      }
+    },
     addThreshold(step):: self + {
       thresholds+: {
         steps+: [step],
