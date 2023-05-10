@@ -16,7 +16,27 @@ local grid_width = 24;
   },
 
   /**
-   * @name utils.generate_grid
+   * @name layout.pos
+   *
+   * Generate standard positions based on the specified height.
+   *
+   * @param height The standard height for a panel.
+   *
+   * @return Standard layout position values.
+   */
+  pos(height):: {
+    _1:     { w: $.width.full,       h: height        },
+    _2:     { w: $.width.half,       h: height        },
+    _4:     { w: $.width.quarter,    h: height        },
+    _3:     { w: $.width.one_third,  h: height        },
+    _5:     { w: $.width.one_fifth,  h: height        },
+    _6:     { w: $.width.one_sixth,  h: height        },
+
+    title:  { w: $.width.full,       h: height / 2    },
+  },
+
+  /**
+   * @name layout.generate_grid
    *
    * Generate Grafana grid, based on panels size.
    * Should be called only once with the list of all panels that will be added.
