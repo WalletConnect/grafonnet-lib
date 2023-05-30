@@ -42,16 +42,16 @@
 
 
   panels:: {
-    alertList::             $.panel_alert_list.new,
-    barGauge::              $.panel_bar_gauge.new,
-    dashList::              $.panel_dash_list.new,
+    alertList::             $.panel_alertList.new,
+    barGauge::              $.panel_barGauge.new,
+    dashList::              $.panel_dashList.new,
     gauge::                 $.panel_gauge.new,
     graph::                 $.panel_graph.new,
     heatmap::               $.panel_heatmap.new,
     log::                   $.panel_log.new,
-    pieChart::              $.panel_pie_chart.new,
-    pluginList::            $.panel_plugin_list.new,
-    singleStat::            $.panel_single_stat.new,
+    pieChart::              $.panel_pieChart.new,
+    pluginList::            $.panel_pluginList.new,
+    singleStat::            $.panel_singleStat.new,
     stat::                  $.panel_stat.new,
     table::                 $.panel_table.new,
     text::                  $.panel_text.new,
