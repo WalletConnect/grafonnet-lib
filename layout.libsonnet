@@ -7,7 +7,7 @@ local grid_width = 24;
     heighth::         grid_width / 8,
 
     quarter::         grid_width / 4,
-    three_quarters::  grid_width / 3 * 4,
+    three_quarters::  grid_width / 4 * 3,
 
     one_third::       grid_width / 3,
     two_thirds::      grid_width / 3 * 2,
