@@ -2,17 +2,18 @@ local grid_width = 24;
 
 {
   width:: {
-    full::        grid_width,
+    full::            grid_width,
+    half::            grid_width / 2,
+    heighth::         grid_width / 8,
 
-    half::        grid_width / 2,
-    quarter::     grid_width / 4,
-    heighth::     grid_width / 8,
+    quarter::         grid_width / 4,
+    three_quarters::  grid_width / 3 * 4,
 
-    one_third::   grid_width / 3,
-    two_thirds::  grid_width / 3 * 2,
+    one_third::       grid_width / 3,
+    two_thirds::      grid_width / 3 * 2,
 
-    one_fifth::   grid_width / 5,
-    one_sixth::   grid_width / 6,
+    one_fifth::       grid_width / 5,
+    one_sixth::       grid_width / 6,
   },
 
   /**
