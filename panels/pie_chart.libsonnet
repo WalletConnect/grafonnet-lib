@@ -41,7 +41,8 @@
     repeatDirection=null,
     maxPerRow=null,
   ):: {
-    type: 'grafana-piechart-panel',
+    type: 'piechart',
+    fieldConfig: {},
     [if description != null then 'description']: description,
     pieType: pieType,
     title: title,
@@ -67,6 +68,11 @@
       local nextTarget = super._nextTarget,
       _nextTarget: nextTarget + 1,
       targets+: [target { refId: std.char(std.codepoint('A') + nextTarget) }],
+    },
+    addOverride(override):: self {
+      fieldConfig+: {
+        overrides+: [override],
+      },
     },
   },
 }
