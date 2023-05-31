@@ -1,46 +1,43 @@
+local layout = import 'layout.libsonnet';
+
 {
   /**
-   * Creates a [row](https://grafana.com/docs/grafana/latest/features/dashboard/dashboards/#rows).
+   * Creates a row.
    * Rows are logical dividers within a dashboard and used to group panels together.
    *
    * @name row.new
    *
    * @param title The title of the row.
-   * @param showTitle (default `true` if title is set) Whether to show the row title
-   * @paral titleSize (default `'h6'`) The size of the title
-   * @param collapse (default `false`) The initial state of the row when opening the dashboard. Panels in a collapsed row are not load until the row is expanded.
-   * @param repeat (optional) Name of variable that should be used to repeat this row. It is recommended to use the variable in the row title as well.
+   * @param collapsed (default `false`) The initial state of the row when opening the dashboard. Panels in a collapsed row are not load until the row is expanded.
    *
    * @method addPanels(panels) Appends an array of nested panels
    * @method addPanel(panel,gridPos) Appends a nested panel, with an optional grid position in grid coordinates, e.g. `gridPos={'x':0, 'y':0, 'w':12, 'h': 9}`
    */
   new(
     title='Dashboard Row',
-    height=null,
-    collapse=false,
-    repeat=null,
-    showTitle=null,
-    titleSize='h6'
+    collapsed=false,
+    gridPos=null,
   ):: {
-    collapse: collapse,
-    collapsed: collapse,
-    [if height != null then 'height']: height,
-    panels: [],
-    repeat: repeat,
-    repeatIteration: null,
-    repeatRowId: null,
-    showTitle:
-      if showTitle != null then
-        showTitle
-      else
-        title != 'Dashboard Row',
+    collapsed: collapsed,
+    datasource: {
+      type: 'datasource',
+      uid:  'grafana'
+    },
+    gridPos: if gridPos != null then gridPos else { w: layout.width._1, h: 1 },
+    panels:: [],
+    targets: [{
+      datasource: {
+        type: 'datasource',
+        uid:  'grafana'
+      },
+    }],
     title: title,
-    type: 'row',
-    titleSize: titleSize,
+    type: "row",
+
     addPanels(panels):: self {
       panels+: panels,
     },
-    addPanel(panel, gridPos={}):: self {
+    addPanel(panel, gridPos=null):: self {
       panels+: [panel { gridPos: gridPos }],
     },
   },

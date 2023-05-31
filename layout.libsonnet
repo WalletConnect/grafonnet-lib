@@ -2,17 +2,28 @@ local grid_width = 24;
 
 {
   width:: {
-    full::        grid_width,
+    _1::      grid_width,
+    _2::      grid_width / 2,
+    _3::      grid_width / 3,
+    _4::      grid_width / 4,
+    _5::      grid_width / 5,
+    _6::      grid_width / 6,
+    _8::      grid_width / 8,
 
-    half::        grid_width / 2,
-    quarter::     grid_width / 4,
-    heighth::     grid_width / 8,
+    full::    $.width._1,
+    half::    $.width._2,
+    third::   $.width._3,
+    quarter:: $.width._4,
+    fifth::   $.width._5,
+    sixth::   $.width._6,
+    heighth:: $.width._8,
 
-    one_third::   grid_width / 3,
-    two_thirds::  grid_width / 3 * 2,
-
-    one_fifth::   grid_width / 5,
-    one_sixth::   grid_width / 6,
+    // TODO: Legacy items, remove in the future
+    one_third::       grid_width / 3,
+    two_thirds::      grid_width / 3 * 2,
+    one_fifth::       grid_width / 5,
+    one_sixth::       grid_width / 6,
+    three_quarters::  grid_width / 4 * 3,
   },
 
   /**
@@ -25,14 +36,48 @@ local grid_width = 24;
    * @return Standard layout position values.
    */
   pos(height):: {
-    _1:     { w: $.width.full,       h: height        },
-    _2:     { w: $.width.half,       h: height        },
-    _4:     { w: $.width.quarter,    h: height        },
-    _3:     { w: $.width.one_third,  h: height        },
-    _5:     { w: $.width.one_fifth,  h: height        },
-    _6:     { w: $.width.one_sixth,  h: height        },
+    _1::              { w: $.width._1,      h: height     },
+    _2::              { w: $.width._2,      h: height     },
+    _3::              { w: $.width._3,      h: height     },
+    _4::              { w: $.width._4,      h: height     },
+    _5::              { w: $.width._5,      h: height     },
+    _6::              { w: $.width._6,      h: height     },
+    _8::              { w: $.width._8,      h: height     },
 
-    title:  { w: $.width.full,       h: height / 2    },
+    full::            { w: $.width._1,      h: height     },
+
+    half::            { w: $.width._2,      h: height     },
+
+    one_third::       { w: $.width._3,      h: height     },
+    two_thirds::      { w: $.width._3 * 2,  h: height     },
+
+    one_quarter::     { w: $.width._4,      h: height     },
+    two_quarters::    { w: $.width._4 * 2,  h: height     },
+    three_quarters::  { w: $.width._4 * 3,  h: height     },
+
+    one_fifth::       { w: $.width._5,      h: height     },
+    two_fifths::      { w: $.width._5 * 2,  h: height     },
+    three_fifths::    { w: $.width._5 * 3,  h: height     },
+    four_fifths::     { w: $.width._5 * 4,  h: height     },
+
+    one_sixth::       { w: $.width._6,      h: height     },
+    two_sixths::      { w: $.width._6 * 2,  h: height     },
+    three_sixths::    { w: $.width._6 * 2,  h: height     },
+    four_sixths::     { w: $.width._6 * 2,  h: height     },
+    five_sixths::     { w: $.width._6 * 2,  h: height     },
+
+    one_heighth::     { w: $.width._8,      h: height     },
+    two_heighth::     { w: $.width._8 * 2,  h: height     },
+    three_heighth::   { w: $.width._8 * 3,  h: height     },
+    four_heighth::    { w: $.width._8 * 4,  h: height     },
+    five_heighth::    { w: $.width._8 * 5,  h: height     },
+    six_heighth::     { w: $.width._8 * 6,  h: height     },
+    seven_heighth::   { w: $.width._8 * 7,  h: height     },
+
+    title::           { w: $.width.full,        h: height / 2 },
+
+    // TODO: Legacy items, remove in the future
+     _3_4:            { w: $.width._4 * 3,  h: height     },
   },
 
   /**

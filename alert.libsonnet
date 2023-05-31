@@ -18,9 +18,10 @@
    * @return A json that represents a condition of alert
    */
   new(
+    namespace,
     name,
     alertRuleTags       = {},
-    conditions,
+    conditions          = [],
     executionErrorState = "alerting",
     period              = "5m",
     frequency           = "1m",
@@ -30,15 +31,22 @@
     notifications        = []
 
   ):: {
-      name:                 name,
-      message:              message,
-      alertRuleTags:        alertRuleTags,
-      conditions:           conditions,
-      executionErrorState:  executionErrorState,
-      'for':                period,
-      frequency:            frequency,
-      handler:              handler,
-      noDataState:          noDataState,
-      notifications:        notifications,
-    },
+    name:                 "%s - %s" % [namespace, name],
+    message:              "%s - %s" % [namespace, message],
+    alertRuleTags:        alertRuleTags,
+    conditions:           conditions,
+    executionErrorState:  executionErrorState,
+    'for':                period,
+    frequency:            frequency,
+    handler:              handler,
+    noDataState:          noDataState,
+    notifications:        notifications,
+  },
+
+  withCondition(condition):: self + {
+    conditions+: [condition]
+  },
+  withConditions(conditions):: self + {
+    conditions+: conditions
+  },
 }
