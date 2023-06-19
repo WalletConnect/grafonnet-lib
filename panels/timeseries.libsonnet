@@ -221,6 +221,22 @@ local fieldConfig = import '../field_config.libsonnet';
   addOverrides(overrides):: std.foldl(function(p, s) p.addOverride(s), overrides, self),
 
   //////////////////////////////////////////////////////////////////////////////
+  // Colors
+  withColor(
+    mode,
+    fixedColor = null
+  ):: self {
+    fieldConfig+: {
+      defaults+: {
+        color: {
+          mode: mode,
+          [if fixedColor != null then 'fixedColor']: fixedColor,
+        },
+      },
+    },
+  },
+
+  //////////////////////////////////////////////////////////////////////////////
   // Panel Thresholds
   addPanelThreshold(
     op,

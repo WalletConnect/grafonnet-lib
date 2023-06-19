@@ -1,28 +1,18 @@
 local grafana         = import '../grafana.libsonnet';
-
-local defaults = {
-  refidCPU    : 'CPU',
-  refidMemory : 'Mem'
-};
-
-local colors = {
-  cpu:      'blue',
-  memory:   'purple',
-
-  ok:       'green',
-  warn:     'orange', // '#EAB839',
-  critical: 'red',
-};
+local defaults        = import '../defaults/values.libsonnet';
 
 {
-  cpu(cfg, refid=defaults.refidCPU):: cfg
+  cpu(
+    cfg,
+    refid = defaults.refid.cpu,
+  ):: cfg
     .addOverride(grafana.override.new(
       name = '%s_Max' % refid,
       properties = [{
         id: 'color',
         value: {
           mode:       'fixed',
-          fixedColor: 'dark-' + colors.cpu
+          fixedColor: defaults.colors.cpu_alt
         }
       }],
     ))
@@ -32,19 +22,22 @@ local colors = {
         id: 'color',
         value: {
           mode:       'fixed',
-          fixedColor: colors.cpu
+          fixedColor: defaults.colors.cpu
         }
       }],
     )),
 
-  memory(cfg, refid=defaults.refidMemory):: cfg
+  memory(
+    cfg,
+    refid = defaults.refid.mem
+  ):: cfg
     .addOverride(grafana.override.new(
       name = '%s_Max' % refid,
       properties = [{
         id: 'color',
         value: {
           mode:       'fixed',
-          fixedColor: 'dark-' + colors.memory
+          fixedColor: defaults.colors.memory_alt
         }
       }],
     ))
@@ -54,10 +47,14 @@ local colors = {
         id: 'color',
         value: {
           mode:       'fixed',
-          fixedColor: colors.memory
+          fixedColor: defaults.colors.memory
         }
       }],
     )),
 
-    cpu_memory(cfg, refidCPU=defaults.refidCPU, refidMemory=defaults.refidMemory):: $.memory($.cpu(cfg, refidCPU), refidMemory),
+    cpu_memory(
+      cfg,
+      refid_cpu = defaults.refid.cpu,
+      refid_mem = defaults.refid.mem,
+    ):: $.memory($.cpu(cfg, refid_cpu), refid_mem),
 }

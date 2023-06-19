@@ -69,4 +69,24 @@
     prometheus::            $.target.prometheus.target,
     sql::                   $.target.sql.target,
   },
+
+  utils:: {
+    strings::               import 'utils/strings.libsonnet',
+    units::                 import 'utils/units.libsonnet',
+  },
+
+  alert_reducers:: {
+    Avg::             'avg',
+    Min::             'min',
+    Max::             'max',
+    Sum::             'sum',
+    Count::           'count',
+    Last::            'last',
+    Median::          'median',
+    Diff::            'diff',
+    DiffAbs::         'diff_abs',
+    PercentDiff::     'percent_diff',
+    PercentDiffAbs::  'percent_diff_abs',
+    CountNonNull::    'count_non_null',
+  }
 }

@@ -41,7 +41,7 @@
     writeable           = null,
   ):: {
     color: if color != null then color else {
-      mode: $.fieldColorModeId.paletteClassic,
+      mode: $.colorMode.classic,
     },
     custom: custom,
     [if decimals !=          null then 'decimals'         ]: decimals,
@@ -106,17 +106,35 @@
     percentage::        'percentage',
   },
 
-  fieldColorModeId:: {
-    continuousGrYlRd::  'continuous-GrYlRd',
+  colorMode:: {
     fixed::             'fixed',
-    paletteClassic::    'palette-classic',
-    paletteSaturated::  'palette-saturated',
     thresholds::        'thresholds',
+    classic::           'palette-classic',
+    greenYellowRed::    'continuous-GrYlRd',
+    redYellowGreen::    'continuous-RdYlGr',
+    blueYellowRed::     'continuous-BlYlRd',
+    yellowRed::         'continuous-YlRd',
+    bluePurple::        'continuous-BlPu',
+    yellowBlue::        'continuous-YlBl',
+    blues::             'continuous-blues',
+    reds::              'continuous-reds',
+    greens::            'continuous-greens',
+    purples::           'continuous-purples',
   },
 
   fieldColorSeriesByMode:: {
     min::               'min',
     max::               'max',
     last::              'last',
+  },
+
+  thresholdStyle:: {
+    off::               'off',
+    line::              'line',
+    dashed::            'dashed',
+    area::              'area',
+    line_area::         'line+area',
+    dashed_area::       'dashed+area',
+    fill::              'fill',
   },
 }
