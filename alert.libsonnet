@@ -41,12 +41,18 @@
     handler:              handler,
     noDataState:          noDataState,
     notifications:        notifications,
-  },
 
-  withCondition(condition):: self + {
-    conditions+: [condition]
-  },
-  withConditions(conditions):: self + {
-    conditions+: conditions
+    withCondition(condition):: self + {
+      conditions+: [condition]
+    },
+    withConditions(conditions):: self + {
+      conditions+: conditions
+    },
+
+    withPriority(priority):: self + {
+      alertRuleTags+: {
+        'og_priority': priority
+      }
+    },
   },
 }

@@ -18,14 +18,14 @@
    * @return A json that represents a condition of alert
    */
   new(
-    evaluatorParams=[],
-    evaluatorType='gt',
-    operatorType='and',
-    queryRefId='A',
-    queryTimeEnd='now',
-    queryTimeStart='5m',
-    reducerParams=[],
-    reducerType='avg',
+    evaluatorParams = [],
+    evaluatorType   = $.evaluatorTypes.Above,
+    operatorType    = $.operatorTypes.And,
+    queryRefId      = 'A',
+    queryTimeStart  = '5m',
+    queryTimeEnd    = 'now',
+    reducerParams   = [],
+    reducerType     = $.reducers.Avg,
   )::
     {
       evaluator: {
@@ -44,4 +44,30 @@
       },
       type: 'query',
     },
+
+
+  evaluatorTypes:: {
+    Above::           'gt',
+    Below::           'lt',
+  },
+
+  operatorTypes:: {
+    And::             'and',
+    Or::              'or',
+  },
+
+  reducers:: {
+    Avg::             'avg',
+    Min::             'min',
+    Max::             'max',
+    Sum::             'sum',
+    Count::           'count',
+    Last::            'last',
+    Median::          'median',
+    Diff::            'diff',
+    DiffAbs::         'diff_abs',
+    PercentDiff::     'percent_diff',
+    PercentDiffAbs::  'percent_diff_abs',
+    CountNonNull::    'count_non_null',
+  }
 }

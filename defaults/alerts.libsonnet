@@ -1,7 +1,7 @@
 local grafana         = import '../grafana.libsonnet';
 local strings         = import '../utils/strings.libsonnet';
 local units           = import '../utils/units.libsonnet';
-local defaults        = import '../defaults/values.libsonnet';
+local values          = import '../defaults/values.libsonnet';
 
 local panels = grafana.panels;
 
@@ -28,12 +28,12 @@ local alert_message(target, message, env, title, limit) =
     message       = null,
     notifications = [],
     priority      = null,
-    refid         = defaults.alerts.mem.refid,
-    limit         = defaults.alerts.mem.limit,
-    reducer       = defaults.alerts.mem.reducer,
-    timeStart     = defaults.alerts.timeStart,
-    period        = defaults.alerts.period,
-    frequency     = defaults.alerts.frequency,
+    refid         = values.alerts.mem.refid,
+    limit         = values.alerts.mem.limit,
+    reducer       = values.alerts.mem.reducer,
+    timeStart     = values.alerts.timeStart,
+    period        = values.alerts.period,
+    frequency     = values.alerts.frequency,
   ):: grafana.alert.new(
     namespace     = namespace,
     name          = if name != null then name else "%(env)s - %(title)s - Memory Utilization alert" % {
@@ -52,6 +52,7 @@ local alert_message(target, message, env, title, limit) =
     conditions    = [ $.conditions.memory(limit, timeStart, reducer, refid) ],
   ),
 
+
   cpu(
     namespace,
     env,
@@ -60,12 +61,12 @@ local alert_message(target, message, env, title, limit) =
     message       = null,
     notifications = [],
     priority      = null,
-    refid         = defaults.alerts.cpu.refid,
-    limit         = defaults.alerts.cpu.limit,
-    reducer       = defaults.alerts.cpu.reducer,
-    timeStart     = defaults.alerts.timeStart,
-    period        = defaults.alerts.period,
-    frequency     = defaults.alerts.frequency,
+    refid         = values.alerts.cpu.refid,
+    limit         = values.alerts.cpu.limit,
+    reducer       = values.alerts.cpu.reducer,
+    timeStart     = values.alerts.timeStart,
+    period        = values.alerts.period,
+    frequency     = values.alerts.frequency,
   ):: grafana.alert.new(
     namespace     = namespace,
     name          = if name != null then name else "%(env)s - %(title)s - CPU Utilization alert" % {
@@ -84,6 +85,7 @@ local alert_message(target, message, env, title, limit) =
     conditions    = [ $.conditions.cpu(limit, timeStart, reducer, refid) ],
   ),
 
+
   cpu_mem(
     namespace,
     env,
@@ -92,20 +94,20 @@ local alert_message(target, message, env, title, limit) =
     message       = null,
     notifications = [],
     priority      = null,
-    period        = defaults.alerts.period,
-    frequency     = defaults.alerts.frequency,
+    period        = values.alerts.period,
+    frequency     = values.alerts.frequency,
 
     cpu           = {
-      refid         : defaults.alerts.cpu.refid,
-      limit         : defaults.alerts.cpu.limit,
-      reducer       : defaults.alerts.cpu.reducer,
-      timeStart     : defaults.alerts.timeStart,
+      refid         : values.alerts.cpu.refid,
+      limit         : values.alerts.cpu.limit,
+      reducer       : values.alerts.cpu.reducer,
+      timeStart     : values.alerts.timeStart,
     },
     memory        = {
-      refid         : defaults.alerts.mem.refid,
-      limit         : defaults.alerts.mem.limit,
-      reducer       : defaults.alerts.mem.reducer,
-      timeStart     : defaults.alerts.timeStart,
+      refid         : values.alerts.mem.refid,
+      limit         : values.alerts.mem.limit,
+      reducer       : values.alerts.mem.reducer,
+      timeStart     : values.alerts.timeStart,
     },
   ):: grafana.alert.new(
     namespace     = namespace,
@@ -124,98 +126,54 @@ local alert_message(target, message, env, title, limit) =
     notifications = notifications,
     alertRuleTags = [if priority != null then { og_priority: priority } else {}],
     conditions    = [
-      $.conditions.cpu(cpu.limit, cpu.timeStart, cpu.reducer, cpu.refid),
-      $.conditions.memory(memory.limit, memory.timeStart, memory.reducer, memory.refid),
+      $.conditions.cpu(
+        cpu.limit,
+        cpu.timeStart,
+        cpu.reducer,
+        cpu.refid
+      ),
+      $.conditions.memory(
+        memory.limit,
+        memory.timeStart,
+        memory.reducer,
+        memory.refid
+      ),
     ],
   ),
 
-  available_memory(
-    namespace,
-    env,
-    title         = 'DocumentDB',
-    name          = null,
-    message       = null,
-    notifications = [],
-    priority      = null,
-    mem_threshold = defaults.available_memory.threshold,
-    timeStart     = defaults.alerts.timeStart,
-    period        = defaults.alerts.period,
-    frequency     = defaults.alerts.frequency,
-    reducer       = defaults.alerts.mem.reducer,
-    refid         = 'Mem',
-  ):: grafana.alert.new(
-    namespace     = namespace,
-    name          = if name != null then name else "%(env)s - %(title)s - Available Memory alert" % {
-                      env:    strings.capitalize(env),
-                      title:  title
-                    },
-    message       = if message != null then message else '%(env)s - %(title)s - Available Memory is low (under %(threshold)s)' % {
-                      env:    strings.capitalize(env),
-                      title:  title,
-                      threshold:  strings.sizeof_fmt(mem_threshold),
-                    },
-    period        = period,
-    frequency     = frequency,
-    notifications = notifications,
-    alertRuleTags = [if priority != null then { og_priority: priority } else {}],
-    conditions    = [ $.conditions.available_memory(mem_threshold, timeStart, reducer, refid) ],
-  ),
-
-  test: $.available_memory(
-    namespace     = 'TEST_NS',
-    title         = 'DocumentDB',
-    env           = 'staging',
-    notifications = ['Notif1'],
-    priority      = 'P2',
-  ),
 
   //////////////////////////////////////////////////////////////////////////////
   // Alert conditions
 
   conditions:: {
     cpu(
-      limit         = defaults.alerts.limit,
-      timeStart     = defaults.alerts.timeStart,
-      reducer       = defaults.alerts.reducer,
-      refid         = 'CPU',
+      limit         = values.alerts.limit,
+      timeStart     = values.alerts.timeStart,
+      reducer       = values.alerts.reducer,
+      refid         = values.refid.CPU,
     ):: grafana.alertCondition.new(
       evaluatorParams = [ limit ],
-      evaluatorType   = 'gt',
-      operatorType    = 'and',
-      queryRefId      = '%s_%s' % [refid, reducer],
+      evaluatorType   = grafana.alertCondition.evaluatorTypes.Above,
+      operatorType    = grafana.alertCondition.operatorTypes.And,
+      queryRefId      = '%s_%s' % [refid, strings.capitalize(reducer)],
       queryTimeStart  = timeStart,
       queryTimeEnd    = 'now',
-      reducerType     = std.asciiLower(reducer),
+      reducerType     = reducer,
     ),
 
     memory(
-      limit         = defaults.alerts.limit,
-      timeStart     = '5m',
-      reducer       = 'Avg',
-      refid         = 'Mem',
+      limit         = values.alerts.limit,
+      timeStart     = values.alerts.timeStart,
+      reducer       = values.alerts.reducer,
+      refid         = values.refid.Memory,
     ):: grafana.alertCondition.new(
       evaluatorParams = [ limit ],
-      evaluatorType   = 'gt',
-      operatorType    = 'and',
-      queryRefId      = '%s_%s' % [refid, reducer],
+      evaluatorType   = grafana.alertCondition.evaluatorTypes.Above,
+      operatorType    = grafana.alertCondition.operatorTypes.And,
+      queryRefId      = '%s_%s' % [refid, strings.capitalize(reducer)],
       queryTimeStart  = timeStart,
       queryTimeEnd    = 'now',
-      reducerType     = std.asciiLower(reducer),
-    ),
-
-    available_memory(
-      mem_threshold = defaults.alerts.available_memory_threshold,
-      timeStart     = '5m',
-      reducer       = 'Avg',
-      refid         = 'Mem',
-    ):: grafana.alertCondition.new(
-      evaluatorParams = [ mem_threshold ],
-      evaluatorType   = 'lt',
-      operatorType    = 'and',
-      queryRefId      = '%s_%s' % [refid, reducer],
-      queryTimeStart  = timeStart,
-      queryTimeEnd    = 'now',
-      reducerType     = std.asciiLower(reducer),
+      reducerType     = reducer,
     ),
   },
 }
