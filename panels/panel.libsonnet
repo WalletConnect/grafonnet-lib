@@ -1,4 +1,9 @@
 {
+
+  defaults:: {
+    title:          '',
+    pluginVersion:  '8.4.7',
+  },
   /**
    * Dashboard panel.
    *
@@ -13,14 +18,14 @@
    * @method addLinks(links) Adds an array of links.
    */
   new(
-    title           = '',
+    title           = $.defaults.title,
     description     = null,
     datasource      = null,
-    fieldConfig       = null,
+    fieldConfig     = null,
     interval        = null,
     libraryPanel    = null,
     maxDataPoints   = null,
-    pluginVersion   = '8.4.7',
+    pluginVersion   = $.defaults.pluginVersion,
     repeat          = null,
     repeatDirection = null,
     repeatPanelId   = null,
@@ -33,22 +38,22 @@
   )::
     self {
       title: title,
-      [if description != '' then 'description']: description,
-      [if datasource != null then 'datasource']: datasource,
-      [if fieldConfig != null then 'fieldConfig']: fieldConfig,
-      [if interval != null then 'interval']: interval,
-      [if libraryPanel != null then 'libraryPanel']: libraryPanel,
-      [if maxDataPoints != null then 'maxDataPoints']: maxDataPoints,
+      [if description != ''       then 'description'      ]: description,
+      [if datasource != null      then 'datasource'       ]: datasource,
+      [if fieldConfig != null     then 'fieldConfig'      ]: fieldConfig,
+      [if interval != null        then 'interval'         ]: interval,
+      [if libraryPanel != null    then 'libraryPanel'     ]: libraryPanel,
+      [if maxDataPoints != null   then 'maxDataPoints'    ]: maxDataPoints,
       options+: {},
       pluginVersion: pluginVersion,
-      [if repeat != null then 'repeat']: repeat,
-      [if repeatDirection != null then 'repeatDirection']: repeatDirection,
-      [if repeatPanelId != null then 'repeatPanelId']: repeatPanelId,
-      [if tags != null then 'tags']: tags,
-      [if timeFrom != null then 'timeFrom']: timeFrom,
-      [if timeRegions != null then 'timeRegions']: timeRegions,
-      [if timeShift != null then 'timeShift']: timeShift,
-      [if transparent != null then 'transparent']: transparent,
+      [if repeat != null          then 'repeat'           ]: repeat,
+      [if repeatDirection != null then 'repeatDirection'  ]: repeatDirection,
+      [if repeatPanelId != null   then 'repeatPanelId'    ]: repeatPanelId,
+      [if tags != null            then 'tags'             ]: tags,
+      [if timeFrom != null        then 'timeFrom'         ]: timeFrom,
+      [if timeRegions != null     then 'timeRegions'      ]: timeRegions,
+      [if timeShift != null       then 'timeShift'        ]: timeShift,
+      [if transparent != null     then 'transparent'      ]: transparent,
     } +
 
     {
@@ -66,18 +71,16 @@
         ],
       },
       addTargets(targets):: std.foldl(function(p, t) p.addTarget(t), targets, self),
-    } +
 
-    {
+
       // Links
       links: [],
       addLink(link):: self {
         links+: [link],
       },
       addLinks(links):: std.foldl(function(p, l) p.addLink(l), links, self),
-    } +
 
-    {
+
       // Alerts
       setAlert(alert):: self {
         alert: alert

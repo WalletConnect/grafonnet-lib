@@ -27,6 +27,7 @@ local defaults        = import '../defaults/values.libsonnet';
       }],
     )),
 
+
   memory(
     cfg,
     refid = defaults.refid.mem
@@ -51,6 +52,7 @@ local defaults        = import '../defaults/values.libsonnet';
         }
       }],
     )),
+
 
     cpu_memory(
       cfg,

@@ -1,50 +1,59 @@
-local units = import '../utils/units.libsonnet';
+local grafana = import '../grafana.libsonnet';
+local units   = import '../utils/units.libsonnet';
 
 {
-  refid: {
-    cpu: 'CPU',
-    mem: 'Mem',
+  refid:: {
+    cpu::         'CPU',
+    mem::         'Mem',
   },
 
-  alerts: {
-    priority:   null,
-    timeStart:  '5m',
-    period:     '5m',
-    frequency:  '1m',
+  alerts:: {
+    priority::    null,
+    timeStart::   '5m',
+    period::      '5m',
+    frequency::   '1m',
 
-    mem: {
-      limit:    70,   // 70%
-      refid:    $.refid.mem,
-      reducer:  'Avg',
+    mem:: {
+      limit::     70,   // 70%
+      refid::     $.refid.mem,
+      reducer::   grafana.alertCondition.reducers.Avg,
     },
-    cpu: {
-      limit:    70,   // 70%
-      refid:    $.refid.cpu,
-      reducer:  'Avg',
-    },
-  },
-
-  available_memory: {
-    threshold:   4  * units.bin.GiB,
-    capacity:   16  * units.bin.GiB,  // AWS DocDB max on db.r6g.large
-  },
-
-  resource: {
-    thresholds: {
-      warning:  40,   // 40%
-      critical: 70,   // 70%
+    cpu:: {
+      limit::     70,   // 70%
+      refid::     $.refid.cpu,
+      reducer::   grafana.alertCondition.reducers.Avg,
     },
   },
 
-  colors: {
-    cpu:        'blue',
-    cpu_alt:    'dark-' + $.colors.cpu,
+  available_memory:: {
+    threshold::   units.size_bin(GiB =  4),
+    capacity::    units.size_bin(GiB = 16),   // AWS DocDB max on db.r6g.large
+  },
 
-    memory:     'purple',
-    memory_alt: 'dark-' + $.colors.memory,
+  resource:: {
+    thresholds:: {
+      warning::   40,   // 40%
+      critical::  70,   // 70%
+    },
+  },
 
-    ok:         'green',
-    warn:       'orange', // '#EAB839',
-    critical:   'red',
+  colors:: {
+    cpu::         'blue',
+    cpu_alt::     'dark-' + $.colors.cpu,
+
+    memory::      'purple',
+    memory_alt::  'dark-' + $.colors.memory,
+
+    ok::          'green',
+    warn::        'orange', // '#EAB839',
+    critical::    'red',
+  },
+
+  priorities:: {
+    Critical::      'P1',
+    High::          'P2',
+    Moderate::      'P3',
+    Low::           'P4',
+    Informational:: 'P5',
   },
 }

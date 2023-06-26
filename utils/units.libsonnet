@@ -22,21 +22,68 @@
     QB: std.pow(1000, 10),  // Quettabyte
   },
 
-  capitalize(str):: "%s%s" % [
-    std.asciiUpper(std.substr(str, 0, 1)),
-    std.asciiLower(std.substr(str, 1, std.length(str) - 1))
-  ],
+  time:: {
+    Milliseconds: 'ms',
+    Seconds:      's',
+    Minutes:      'm',
+  },
 
-  sizeof_fmt(num, suffix="B"):: if num < std.pow(1024, 8) then [
-    x.fmt % x.val + x.unit + suffix for x in [
-      { unit: "",   val: num,                    fmt: "%0d"   },
-      { unit: "Ki", val: num / std.pow(1024, 1), fmt: "%0.2f" },
-      { unit: "Mi", val: num / std.pow(1024, 2), fmt: "%0.2f" },
-      { unit: "Gi", val: num / std.pow(1024, 3), fmt: "%0.2f" },
-      { unit: "Ti", val: num / std.pow(1024, 4), fmt: "%0.2f" },
-      { unit: "Pi", val: num / std.pow(1024, 5), fmt: "%0.2f" },
-      { unit: "Ei", val: num / std.pow(1024, 6), fmt: "%0.2f" },
-      { unit: "Zi", val: num / std.pow(1024, 7), fmt: "%0.2f" },
-    ] if std.abs(x.val) < 1024.0
-  ][0] else "> 1 Yi" + suffix,
+  defaultTimeUnit:: $.time.Milliseconds,
+
+  milliseconds:: function(value, to = $.defaultTimeUnit)
+          if to == $.time.Milliseconds  then value
+    else  if to == $.time.Seconds       then value / 1000
+    else  if to == $.time.Minutes       then value / 60000
+    else  error 'invalid time unit',
+
+  seconds:: function(value, to = $.defaultTimeUnit)
+          if to == $.time.Milliseconds  then value * 1000
+    else  if to == $.time.Seconds       then value
+    else  if to == $.time.Minutes       then value / 60
+    else  error 'invalid time unit',
+
+  minutes:: function(value, to = $.defaultTimeUnit)
+          if to == $.time.Milliseconds  then value * 60000
+    else  if to == $.time.Seconds       then value * 60
+    else  if to == $.time.Minutes       then value
+    else  error 'invalid time unit',
+
+  size_bin:: function(
+    KiB = null,
+    MiB = null,
+    GiB = null,
+    TiB = null,
+    PiB = null,
+    EiB = null,
+    ZiB = null,
+    YiB = null,
+  )      if KiB != null then KiB * $.bin.KiB
+    else if MiB != null then MiB * $.bin.MiB
+    else if GiB != null then GiB * $.bin.GiB
+    else if TiB != null then TiB * $.bin.TiB
+    else if PiB != null then PiB * $.bin.PiB
+    else if EiB != null then EiB * $.bin.EiB
+    else if ZiB != null then ZiB * $.bin.ZiB
+    else if YiB != null then YiB * $.bin.YiB
+    else error 'no value specified',
+
+  size_dec:: function(
+    KB = null,
+    MB = null,
+    GB = null,
+    TB = null,
+    PB = null,
+    EB = null,
+    ZB = null,
+    YB = null,
+  )      if KB != null then KB * $.dec.KB
+    else if MB != null then MB * $.dec.MB
+    else if GB != null then GB * $.dec.GB
+    else if TB != null then TB * $.dec.TB
+    else if PB != null then PB * $.dec.PB
+    else if EB != null then EB * $.dec.EB
+    else if ZB != null then ZB * $.dec.ZB
+    else if YB != null then YB * $.dec.YB
+    else error 'no value specified',
+
 }
