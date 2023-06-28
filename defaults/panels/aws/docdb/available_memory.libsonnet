@@ -39,7 +39,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     )
   )
   .addPanelThreshold(
-    op            = grafana.alertCondition.evaluatorTypes.Below,
+    op            = grafana.alertCondition.evaluators.Below,
     value         = mem_threshold,
   )
 
@@ -52,8 +52,8 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
       conditions    = [
         grafana.alertCondition.new(
           evaluatorParams = [ mem_threshold ],
-          evaluatorType   = grafana.alertCondition.evaluatorTypes.Below,
-          operatorType    = grafana.alertCondition.operatorTypes.And,
+          evaluatorType   = grafana.alertCondition.evaluators.Below,
+          operatorType    = grafana.alertCondition.operators.And,
           queryRefId      = refid_Mem_Avg,
           reducerType     = grafana.alertCondition.reducers.Avg,
         ),

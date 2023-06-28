@@ -42,8 +42,8 @@ local refid_Ops_Max   = 'Ops_Max';
       conditions  = [
         grafana.alertCondition.new(
           evaluatorParams = [ ops_threshold ],
-          evaluatorType   = grafana.alertCondition.evaluatorTypes.Above,
-          operatorType    = grafana.alertCondition.operatorTypes.And,
+          evaluatorType   = grafana.alertCondition.evaluators.Above,
+          operatorType    = grafana.alertCondition.operators.And,
           queryRefId      = refid_Ops_Max,
           reducerType     = grafana.alertCondition.reducers.Max,
         ),

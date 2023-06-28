@@ -19,8 +19,8 @@
    */
   new(
     evaluatorParams = [],
-    evaluatorType   = $.evaluatorTypes.Above,
-    operatorType    = $.operatorTypes.And,
+    evaluatorType   = $.evaluators.Above,
+    operatorType    = $.operators.And,
     queryRefId      = 'A',
     queryTimeStart  = '5m',
     queryTimeEnd    = 'now',
@@ -46,12 +46,12 @@
     },
 
 
-  evaluatorTypes:: {
+  evaluators:: {
     Above::           'gt',
     Below::           'lt',
   },
 
-  operatorTypes:: {
+  operators:: {
     And::             'and',
     Or::              'or',
   },

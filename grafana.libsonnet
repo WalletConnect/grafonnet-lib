@@ -74,6 +74,7 @@
   },
 
   utils:: {
+    arrays::                import 'utils/arrays.libsonnet',
     strings::               import 'utils/strings.libsonnet',
     units::                 import 'utils/units.libsonnet',
   },

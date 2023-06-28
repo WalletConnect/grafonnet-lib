@@ -31,15 +31,15 @@ local refid_Pressure        = 'Pressure';
       conditions    = [
         grafana.alertCondition.new(
           evaluatorParams = [ grafana.utils.units.size_bin(MiB = 100) ],
-          evaluatorType   = grafana.alertCondition.evaluatorTypes.Below,
-          operatorType    = grafana.alertCondition.operatorTypes.Or,
+          evaluatorType   = grafana.alertCondition.evaluators.Below,
+          operatorType    = grafana.alertCondition.operators.Or,
           queryRefId      = refid_FreeableMemory,
           reducerType     = grafana.alertCondition.reducers.Avg,
         ),
         grafana.alertCondition.new(
           evaluatorParams = [ 0 ],
-          evaluatorType   = grafana.alertCondition.evaluatorTypes.Below,
-          operatorType    = grafana.alertCondition.operatorTypes.Or,
+          evaluatorType   = grafana.alertCondition.evaluators.Below,
+          operatorType    = grafana.alertCondition.operators.Or,
           queryRefId      = refid_Pressure,
           reducerType     = grafana.alertCondition.reducers.Avg,
         ),

@@ -42,15 +42,15 @@ local colors = {
     conditions  = [
       grafana.alertCondition.new(
         evaluatorParams = [ defaults.values.resource.thresholds.critical ],
-        evaluatorType   = grafana.alertCondition.evaluatorTypes.Above,
-        operatorType    = grafana.alertCondition.operatorTypes.Or,
+        evaluatorType   = grafana.alertCondition.evaluators.Above,
+        operatorType    = grafana.alertCondition.operators.Or,
         queryRefId      = refids.cpu_writer_max,
         reducerType     = grafana.alertCondition.reducers.Avg,
       ),
       grafana.alertCondition.new(
         evaluatorParams = [ defaults.values.resource.thresholds.critical ],
-        evaluatorType   = grafana.alertCondition.evaluatorTypes.Above,
-        operatorType    = grafana.alertCondition.operatorTypes.Or,
+        evaluatorType   = grafana.alertCondition.evaluators.Above,
+        operatorType    = grafana.alertCondition.operators.Or,
         queryRefId      = refids.cpu_reader_max,
         reducerType     = grafana.alertCondition.reducers.Avg,
       ),
