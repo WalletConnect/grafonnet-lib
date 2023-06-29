@@ -19,7 +19,7 @@ local defaults        = import '../../../../defaults.libsonnet';
   .addTarget(grafana.targets.cloudwatch(
     datasource  = datasource,
     namespace   = grafana.target.cloudwatch.namespace.AmazonMQ,
-    metricName  = grafana.target.cloudwatch.metrics.amqp.TotalMessageCount,
+    metricName  = grafana.target.cloudwatch.metrics.amazonmq.TotalMessageCount,
     dimensions  = {
       Broker: broker,
     },

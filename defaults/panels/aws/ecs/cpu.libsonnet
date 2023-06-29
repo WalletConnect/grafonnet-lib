@@ -12,6 +12,8 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     environment,
     notifications,
     service_name,
+    cluster_name    = null,
+    matchExact      = true,
     title           = $.title,
     priority        = null,
     period          = defaults.values.alerts.period,
@@ -50,8 +52,10 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Maximum,
     refId         = refid_CPU_Max,
   ))
@@ -61,8 +65,10 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Average,
     refId         = refid_CPU_Avg,
   ))

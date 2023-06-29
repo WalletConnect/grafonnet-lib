@@ -21,7 +21,7 @@ local defaults        = import '../../../../defaults.libsonnet';
         { value: 50, color: defaults.values.colors.critical },
       ]
     )
-    .withUnit('percent')
+    .withUnit(grafana.fieldConfig.units.Percent)
     .withSoftLimit(
       axisSoftMin = 0,
       axisSoftMax = 100,
@@ -31,7 +31,7 @@ local defaults        = import '../../../../defaults.libsonnet';
   .addTarget(grafana.targets.cloudwatch(
     datasource  = datasource,
     namespace   = grafana.target.cloudwatch.namespace.AmazonMQ,
-    metricName  = grafana.target.cloudwatch.metrics.amqp.StorePercentUsage,
+    metricName  = grafana.target.cloudwatch.metrics.amazonmq.StorePercentUsage,
     dimensions  = {
       Broker: broker,
     },

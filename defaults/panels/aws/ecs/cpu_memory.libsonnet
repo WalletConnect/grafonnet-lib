@@ -14,6 +14,8 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     environment,
     notifications,
     service_name,
+    cluster_name    = null,
+    matchExact      = true,
     title           = $.title,
     priority        = null,
     period          = defaults.values.alerts.period,
@@ -64,7 +66,9 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
       ServiceName: service_name
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Maximum,
     refId         = refid_CPU_Max,
   ))
@@ -75,7 +79,9 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
       ServiceName: service_name
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Average,
     refId         = refid_CPU_Avg,
   ))
@@ -87,7 +93,9 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
       ServiceName: service_name
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Maximum,
     refId         = refid_Mem_Max,
   ))
@@ -98,7 +106,9 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
       ServiceName: service_name
+      [if cluster_name != null then 'ClusterName']: cluster_name,
     },
+    matchExact    = matchExact,
     statistic     = grafana.target.cloudwatch.statistics.Average,
     refId         = refid_Mem_Avg,
   ))

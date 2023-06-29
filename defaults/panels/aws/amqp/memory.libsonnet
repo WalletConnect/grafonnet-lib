@@ -20,7 +20,7 @@ local defaults        = import '../../../../defaults.libsonnet';
   .addTarget(grafana.targets.cloudwatch(
     datasource  = datasource,
     namespace   = grafana.target.cloudwatch.namespace.AmazonMQ,
-    metricName  = grafana.target.cloudwatch.metrics.amqp.HeapUsage,
+    metricName  = grafana.target.cloudwatch.metrics.amazonmq.HeapUsage,
     dimensions  = {
       Broker: broker
     },

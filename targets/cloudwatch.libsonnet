@@ -187,45 +187,9 @@
     ECS_ContainerInsights::     'ECS/ContainerInsights',
   },
 
+
   metrics:: {
-    docdb:: {
-      BackupRetentionPeriodStorageUsed::              'BackupRetentionPeriodStorageUsed',                 // The total amount of backup storage in GiB used to support the point-in-time restore feature within the Amazon DocumentDB's retention window.
-      BufferCacheHitRatio::                           'BufferCacheHitRatio',                              // The percentage of requests that are served by the buffer cache.
-      CPUUtilization::                                'CPUUtilization',                                   // The percentage of CPU used by an instance.
-      ChangeStreamLogSize::                           'ChangeStreamLogSize',                              // The amount of storage used by the cluster to store the change stream log in megabytes.
-      DBClusterReplicaLagMaximum::                    'DBClusterReplicaLagMaximum',                       // The maximum amount of lag, in milliseconds, between the primary instance and each Amazon DocumentDB instance in the cluster.
-      DBClusterReplicaLagMinimum::                    'DBClusterReplicaLagMinimum',                       // The minimum amount of lag, in milliseconds, between the primary instance and each replica instance in the cluster.
-      DBInstanceReplicaLag::                          'DBInstanceReplicaLag',                             // The amount of lag in milliseconds when replicating updates from the primary instance to a replica.
-      DatabaseConnections::                           'DatabaseConnections',                              // The number of connections open on an instance taken at a one-minute frequency.
-      DiskQueueDepth::                                'DiskQueueDepth',                                   // The number of concurrent write requests to the distributed storage volume.
-      EngineUptime::                                  'EngineUptime',                                     // The amount of time, in seconds, that the instance has been running.
-      FreeLocalStorage::                              'FreeLocalStorage',                                 // The amount of storage available to each instance for temporary tables and logs.
-      FreeableMemory::                                'FreeableMemory',                                   // The amount of available random access memory, in bytes.
-      LowMemNumOperationsThrottled::                  'LowMemNumOperationsThrottled',                     // The number of read and write operations that have been throttled due to low memory.
-      NetworkReceiveThroughput::                      'NetworkReceiveThroughput',                         // The amount of network throughput, in bytes per second, received from clients by each instance in the cluster.
-      NetworkThroughput::                             'NetworkThroughput',                                // The amount of network throughput, in bytes per second, both received from and transmitted to clients by each instance in the cluster
-      NetworkTransmitThroughput::                     'NetworkTransmitThroughput',                        // The amount of network throughput, in bytes per second, sent to clients by each instance in the cluster.
-      ReadIOPS::                                      'ReadIOPS',                                         // The average number of disk read I/O operations per second. Amazon DocumentDB reports read and write IOPS separately, and on one-minute intervals.
-      ReadLatency::                                   'ReadLatency',                                      // The average amount of time taken per disk I/O operation.
-      ReadThroughput::                                'ReadThroughput',                                   // The average number of bytes read from disk per second.
-      SnapshotStorageUsed::                           'SnapshotStorageUsed',                              // The total amount of backup storage in GiB consumed by all snapshots for the cluster outside its backup retention window.
-      SwapUsage::                                     'SwapUsage',                                        // The amount of swap space used on the instance.
-      TotalBackupStorageBilled::                      'TotalBackupStorageBilled',                         // The total amount of backup storage in GiB for which you are billed for the cluster.
-      VolumeBytesUsed::                               'VolumeBytesUsed',                                  // The amount of storage used by your cluster in bytes.
-      VolumeReadIOPs::                                'VolumeReadIOPs',                                   // The average number of billed read I/O operations from a cluster volume, reported at 5-minute intervals.
-      VolumeWriteIOPs::                               'VolumeWriteIOPs',                                  // The average number of billed write I/O operations from a cluster volume, reported at 5-minute intervals.
-      WriteIOPS::                                     'WriteIOPS',                                        // The average number of disk write I/O operations per second. When used on a cluster level.
-      WriteLatency::                                  'WriteLatency',                                     // The average amount of time, in milliseconds, taken per disk I/O operation.
-      WriteThroughput::                               'WriteThroughput',                                  // The average number of bytes written to disk per second.
-    },
-    ecs:: {
-      CPUReservation::                                'CPUReservation',                                   // The percentage of CPU units that are reserved by running tasks in the cluster.
-      CPUUtilization::                                'CPUUtilization',                                   // The percentage of CPU units that are used in the cluster or service.
-      GPUReservation::                                'GPUReservation',                                   // The percentage of total available GPUs that are reserved by running tasks in the cluster.
-      MemoryReservation::                             'MemoryReservation',                                // The percentage of memory that is reserved by running tasks in the cluster.
-      MemoryUtilization::                             'MemoryUtilization',                                // The percentage of memory that is used in the cluster or service.
-    },
-    amqp:: {
+    amazonmq:: {
       AckRate::                                       'AckRate',                                          // The rate at which messages are being acknowledged by consumers.
       BurstBalance::                                  'BurstBalance',                                     // The percentage of burst credits remaining on the Amazon EBS volume used to persist message data for throughput-optimized brokers.
       ChannelCount::                                  'ChannelCount',                                     // The total number of channels established on the broker.
@@ -276,22 +240,7 @@
       VolumeReadOps::                                 'VolumeReadOps',                                    // The number of read operations performed on the Amazon EBS volume.
       VolumeWriteOps::                                'VolumeWriteOps',                                   // The number of write operations performed on the Amazon EBS volume.
     },
-    network_elb:: {
-      ActiveFlowCount::                               'ActiveFlowCount',                                  // The total number of concurrent flows (or connections) from clients to targets.
-      ActiveFlowCount_TLS::                           'ActiveFlowCount_TLS',                              // The total number of concurrent TLS flows (or connections) from clients to targets.
-      ClientTLSNegotiationErrorCount::                'ClientTLSNegotiationErrorCount',                   // The total number of TLS handshakes that failed during negotiation between a client and a TLS listener.
-      ConsumedLCUs::                                  'ConsumedLCUs',                                     // The number of load balancer capacity units (LCU) used by the load balancer.
-      HealthyHostCount::                              'HealthyHostCount',                                 // The number of targets that are considered healthy.
-      NewFlowCount::                                  'NewFlowCount',                                     // The total number of new flows (or connections) established from clients to targets in the time period.
-      NewFlowCount_TLS::                              'NewFlowCount_TLS',                                 // The total number of new TLS flows (or connections) established from clients to targets in the time period.
-      ProcessedBytes::                                'ProcessedBytes',                                   // The total number of bytes processed by the load balancer, including TCP/IP headers.
-      ProcessedBytes_TLS::                            'ProcessedBytes_TLS',                               // The total number of bytes processed by TLS listeners.
-      TCP_Client_Reset_Count::                        'TCP_Client_Reset_Count',                           // The total number of reset (RST) packets sent from a client to a target.
-      TCP_ELB_Reset_Count::                           'TCP_ELB_Reset_Count',                              // The total number of reset (RST) packets generated by the load balancer.
-      TCP_Target_Reset_Count::                        'TCP_Target_Reset_Count',                           // The total number of reset (RST) packets sent from a target to a client.
-      TargetTLSNegotiationErrorCount::                'TargetTLSNegotiationErrorCount',                   // The total number of TLS handshakes that failed during negotiation between a TLS listener and a target.
-      UnHealthyHostCount::                            'UnHealthyHostCount',                               // The number of targets that are considered unhealthy.
-    },
+
     application_elb:: {
       ActiveConnectionCount::                         'ActiveConnectionCount',                            // The total number of concurrent TCP connections active from clients to the load balancer and from the load balancer to targets.
       ClientTLSNegotiationErrorCount::                'ClientTLSNegotiationErrorCount',                   // The number of TLS connections initiated by the client that did not establish a session with the load balancer due to a TLS error.
@@ -338,6 +287,91 @@
       TargetTLSNegotiationErrorCount::                'TargetTLSNegotiationErrorCount',                   // The number of TLS connections initiated by the load balancer that did not establish a session with the target.
       UnHealthyHostCount::                            'UnHealthyHostCount',                               // The number of targets that are considered unhealthy.
     },
+
+    autoscaling:: {
+      GroupDesiredCapacity::                          'GroupDesiredCapacity',                             // The number of instances that the Auto Scaling group attempts to maintain.
+      GroupInServiceInstances::                       'GroupInServiceInstances',                          // The number of instances that are running as part of the Auto Scaling group.
+      GroupMaxSize::                                  'GroupMaxSize',                                     // The maximum size of the Auto Scaling group.
+      GroupMinSize::                                  'GroupMinSize',                                     // The minimum size of the Auto Scaling group.
+      GroupPendingInstances::                         'GroupPendingInstances',                            // The number of instances that are pending.
+      GroupStandbyInstances::                         'GroupStandbyInstances',                            // The number of instances that are in a Standby state.
+      GroupTerminatingInstances::                     'GroupTerminatingInstances',                        // The number of instances that are in the process of terminating.
+      GroupTotalInstances::                           'GroupTotalInstances',                              // The total number of instances in the Auto Scaling group.
+    },
+
+    docdb:: {
+      BackupRetentionPeriodStorageUsed::              'BackupRetentionPeriodStorageUsed',                 // The total amount of backup storage in GiB used to support the point-in-time restore feature within the Amazon DocumentDB's retention window.
+      BufferCacheHitRatio::                           'BufferCacheHitRatio',                              // The percentage of requests that are served by the buffer cache.
+      CPUUtilization::                                'CPUUtilization',                                   // The percentage of CPU used by an instance.
+      ChangeStreamLogSize::                           'ChangeStreamLogSize',                              // The amount of storage used by the cluster to store the change stream log in megabytes.
+      DBClusterReplicaLagMaximum::                    'DBClusterReplicaLagMaximum',                       // The maximum amount of lag, in milliseconds, between the primary instance and each Amazon DocumentDB instance in the cluster.
+      DBClusterReplicaLagMinimum::                    'DBClusterReplicaLagMinimum',                       // The minimum amount of lag, in milliseconds, between the primary instance and each replica instance in the cluster.
+      DBInstanceReplicaLag::                          'DBInstanceReplicaLag',                             // The amount of lag in milliseconds when replicating updates from the primary instance to a replica.
+      DatabaseConnections::                           'DatabaseConnections',                              // The number of connections open on an instance taken at a one-minute frequency.
+      DiskQueueDepth::                                'DiskQueueDepth',                                   // The number of concurrent write requests to the distributed storage volume.
+      EngineUptime::                                  'EngineUptime',                                     // The amount of time, in seconds, that the instance has been running.
+      FreeLocalStorage::                              'FreeLocalStorage',                                 // The amount of storage available to each instance for temporary tables and logs.
+      FreeableMemory::                                'FreeableMemory',                                   // The amount of available random access memory, in bytes.
+      LowMemNumOperationsThrottled::                  'LowMemNumOperationsThrottled',                     // The number of read and write operations that have been throttled due to low memory.
+      NetworkReceiveThroughput::                      'NetworkReceiveThroughput',                         // The amount of network throughput, in bytes per second, received from clients by each instance in the cluster.
+      NetworkThroughput::                             'NetworkThroughput',                                // The amount of network throughput, in bytes per second, both received from and transmitted to clients by each instance in the cluster
+      NetworkTransmitThroughput::                     'NetworkTransmitThroughput',                        // The amount of network throughput, in bytes per second, sent to clients by each instance in the cluster.
+      ReadIOPS::                                      'ReadIOPS',                                         // The average number of disk read I/O operations per second. Amazon DocumentDB reports read and write IOPS separately, and on one-minute intervals.
+      ReadLatency::                                   'ReadLatency',                                      // The average amount of time taken per disk I/O operation.
+      ReadThroughput::                                'ReadThroughput',                                   // The average number of bytes read from disk per second.
+      SnapshotStorageUsed::                           'SnapshotStorageUsed',                              // The total amount of backup storage in GiB consumed by all snapshots for the cluster outside its backup retention window.
+      SwapUsage::                                     'SwapUsage',                                        // The amount of swap space used on the instance.
+      TotalBackupStorageBilled::                      'TotalBackupStorageBilled',                         // The total amount of backup storage in GiB for which you are billed for the cluster.
+      VolumeBytesUsed::                               'VolumeBytesUsed',                                  // The amount of storage used by your cluster in bytes.
+      VolumeReadIOPs::                                'VolumeReadIOPs',                                   // The average number of billed read I/O operations from a cluster volume, reported at 5-minute intervals.
+      VolumeWriteIOPs::                               'VolumeWriteIOPs',                                  // The average number of billed write I/O operations from a cluster volume, reported at 5-minute intervals.
+      WriteIOPS::                                     'WriteIOPS',                                        // The average number of disk write I/O operations per second. When used on a cluster level.
+      WriteLatency::                                  'WriteLatency',                                     // The average amount of time, in milliseconds, taken per disk I/O operation.
+      WriteThroughput::                               'WriteThroughput',                                  // The average number of bytes written to disk per second.
+    },
+
+    ecs:: {
+      CPUReservation::                                'CPUReservation',                                   // The percentage of CPU units that are reserved by running tasks in the cluster.
+      CPUUtilization::                                'CPUUtilization',                                   // The percentage of CPU units that are used in the cluster or service.
+      GPUReservation::                                'GPUReservation',                                   // The percentage of total available GPUs that are reserved by running tasks in the cluster.
+      MemoryReservation::                             'MemoryReservation',                                // The percentage of memory that is reserved by running tasks in the cluster.
+      MemoryUtilization::                             'MemoryUtilization',                                // The percentage of memory that is used in the cluster or service.
+    },
+
+    efs:: {
+      BurstCreditBalance::                            'BurstCreditBalance',                               // The number of burst credits that a file system has.
+      ClientConnections::                             'ClientConnections',                                // The number of client connections to a file system.
+      DataReadIOBytes::                               'DataReadIOBytes',                                  // The number of bytes for each file system read operation.
+      DataWriteIOBytes::                              'DataWriteIOBytes',                                 // The number of bytes for each file system write operation.
+      MetadataIOBytes::                               'MetadataIOBytes',                                  // The number of bytes for each metadata operation.
+      PercentIOLimit::                                'PercentIOLimit',                                   // Shows how close a file system is to reaching the I/O limit of the General Purpose performance mode.
+      PermittedThroughput::                           'PermittedThroughput',                              // The maximum amount of throughput that a file system can drive.
+      TotalIOBytes::                                  'TotalIOBytes',                                     // The actual number of bytes for each file system operation, including data read, data write, and metadata operations.
+      StorageBytes::                                  'StorageBytes',                                     // The size of the file system in bytes, including the amount of data stored in the EFS Standard and EFS Standard–Infrequent Access (EFS Standard-IA) storage classes.
+      MeteredIOBytes::                                'MeteredIOBytes',                                   // The number of metered bytes for each file system operation, including data read, data write, and metadata operations, with read operations metered at one-third the rate of other operations.
+
+    },
+
+    elb:: {
+      BackendConnectionErrors::                       'BackendConnectionErrors',                          // The number of connections that were not successfully established between the load balancer and the registered instances
+      EstimatedALBActiveConnectionCount::             'EstimatedALBActiveConnectionCount',                // The estimated number of concurrent TCP connections active from clients to the load balancer and from the load balancer to targets.
+      EstimatedALBConsumedLCUs::                      'EstimatedALBConsumedLCUs',                         // The estimated number of load balancer capacity units (LCU) used by an Application Load Balancer.
+      EstimatedALBNewConnectionCount::                'EstimatedALBNewConnectionCount',                   // The estimated number of new TCP connections established from clients to the load balancer and from the load balancer to targets.
+      EstimatedProcessedBytes::                       'EstimatedProcessedBytes',                          // The estimated number of bytes processed by an Application Load Balancer.
+      HTTPCode_Backend_2XX::                          'HTTPCode_Backend_2XX',                             // The number of 2XX HTTP response codes generated by registered instances.
+      HTTPCode_Backend_3XX::                          'HTTPCode_Backend_3XX',                             // The number of 3XX HTTP response codes generated by registered instances.
+      HTTPCode_Backend_4XX::                          'HTTPCode_Backend_4XX',                             // The number of 4XX HTTP response codes generated by registered instances.
+      HTTPCode_Backend_5XX::                          'HTTPCode_Backend_5XX',                             // The number of 5XX HTTP response codes generated by registered instances.
+      HTTPCode_ELB_4XX::                              'HTTPCode_ELB_4XX',                                 // The number of HTTP 4XX client error codes generated by the load balancer.
+      HTTPCode_ELB_5XX::                              'HTTPCode_ELB_5XX',                                 // The number of HTTP 5XX server error codes generated by the load balancer.
+      HealthyHostCount::                              'HealthyHostCount',                                 // The number of healthy instances registered with your load balancer.
+      Latency::                                       'Latency',                                          // The total time elapsed, in seconds, from the time the load balancer sent the request to a registered instance until the instance started to send the response headers.
+      RequestCount::                                  'RequestCount',                                     // The number of requests completed or connections made during the specified interval (1 or 5 minutes).
+      SpilloverCount::                                'SpilloverCount',                                   // The total number of requests that were rejected because the surge queue is full.
+      SurgeQueueLength::                              'SurgeQueueLength',                                 // The total number of requests (HTTP listener) or connections (TCP listener) that are pending routing to a healthy instance.
+      UnHealthyHostCount::                            'UnHealthyHostCount',                               // The number of unhealthy instances registered with your load balancer.
+    },
+
     elasticache:: {
 		  CPUCreditBalance::                              'CPUCreditBalance',                                 // Host - The number of earned CPU credits that an instance has accrued since it was launched or started. For T2 Standard, the CPUCreditBalance also includes the number of launch credits that have been accrued.
 		  CPUCreditUsage::                                'CPUCreditUsage',                                   // Host - The number of CPU credits spent by the instance for CPU utilization
@@ -442,6 +476,207 @@
 		  StringBasedCmdsLatency::                        'StringBasedCmdsLatency',                           // Redis - Latency of string-based commands
       ActiveDefragHits::                              'ActiveDefragHits',                                 // Redis - The number of value reallocations per minute performed by the active defragmentation process.
       NumItemsReadFromDisk::                          'NumItemsReadFromDisk',                             // Redis - The total number of items retrieved from disk per minute.
-    }
+    },
+
+    kms:: {
+      SecondsUntilKeyMaterialExpiration::             'SecondsUntilKeyMaterialExpiration',                // The number of seconds remaining until the imported key material in a KMS key expires.
+    },
+
+    lambda:: {
+      ConcurrentExecutions::                          'ConcurrentExecutions',                             // The number of function instances that are processing events.
+      DeadLetterErrors::                              'DeadLetterErrors',                                 // For asynchronous invocation, the number of times that Lambda attempts to send an event to a dead-letter queue (DLQ) but fails.
+      DestinationDeliveryFailures::                   'DestinationDeliveryFailures',                      // For asynchronous invocation and supported event source mappings, the number of times that Lambda attempts to send an event to a destination but fails.
+      Duration::                                      'Duration',                                         // The amount of time that your function code spends processing an event.
+      Errors::                                        'Errors',                                           // The number of invocations that result in a function error.
+      Invocations::                                   'Invocations',                                      // The number of times that your function code is invoked, including successful invocations and invocations that result in a function error.
+      IteratorAge::                                   'IteratorAge',                                      // For event source mappings that read from streams, the age of the last record in the event.
+      OffsetLag::                                     'OffsetLag',                                        // For self-managed Apache Kafka and Amazon Managed Streaming for Apache Kafka (Amazon MSK) event sources, the difference in offset between the last record written to a topic and the last record that your function's consumer group processed.
+      PostRuntimeExtensionsDuration::                 'PostRuntimeExtensionsDuration',                    // The cumulative amount of time that the runtime spends running code for extensions after the function code has completed.
+      ProvisionedConcurrencyInvocations::             'ProvisionedConcurrencyInvocations',                // The number of times that the function code is invoked using provisioned concurrency.
+      ProvisionedConcurrencyUtilization::             'ProvisionedConcurrencyUtilization',                // For a version or alias, the value of ProvisionedConcurrentExecutions divided by the total amount of provisioned concurrency allocated.
+      ProvisionedConcurrentExecutions::               'ProvisionedConcurrentExecutions',                  // The number of function instances that are processing events using provisioned concurrency.
+      Throttles::                                     'Throttles',                                        // The number of invocation requests that are throttled.
+      ProvisionedConcurrencySpilloverInvocations::    'ProvisionedConcurrencySpilloverInvocations',       // The number of times that the function code is invoked using standard concurrency when all provisioned concurrency is in use.
+      UnreservedConcurrentExecutions::                'UnreservedConcurrentExecutions',                   // For a Region, the number of events that functions without reserved concurrency are processing.
+    },
+
+    network_elb:: {
+      ActiveFlowCount::                               'ActiveFlowCount',                                  // The total number of concurrent flows (or connections) from clients to targets.
+      ActiveFlowCount_TLS::                           'ActiveFlowCount_TLS',                              // The total number of concurrent TLS flows (or connections) from clients to targets.
+      ClientTLSNegotiationErrorCount::                'ClientTLSNegotiationErrorCount',                   // The total number of TLS handshakes that failed during negotiation between a client and a TLS listener.
+      ConsumedLCUs::                                  'ConsumedLCUs',                                     // The number of load balancer capacity units (LCU) used by the load balancer.
+      HealthyHostCount::                              'HealthyHostCount',                                 // The number of targets that are considered healthy.
+      NewFlowCount::                                  'NewFlowCount',                                     // The total number of new flows (or connections) established from clients to targets in the time period.
+      NewFlowCount_TLS::                              'NewFlowCount_TLS',                                 // The total number of new TLS flows (or connections) established from clients to targets in the time period.
+      ProcessedBytes::                                'ProcessedBytes',                                   // The total number of bytes processed by the load balancer, including TCP/IP headers.
+      ProcessedBytes_TLS::                            'ProcessedBytes_TLS',                               // The total number of bytes processed by TLS listeners.
+      TCP_Client_Reset_Count::                        'TCP_Client_Reset_Count',                           // The total number of reset (RST) packets sent from a client to a target.
+      TCP_ELB_Reset_Count::                           'TCP_ELB_Reset_Count',                              // The total number of reset (RST) packets generated by the load balancer.
+      TCP_Target_Reset_Count::                        'TCP_Target_Reset_Count',                           // The total number of reset (RST) packets sent from a target to a client.
+      TargetTLSNegotiationErrorCount::                'TargetTLSNegotiationErrorCount',                   // The total number of TLS handshakes that failed during negotiation between a TLS listener and a target.
+      UnHealthyHostCount::                            'UnHealthyHostCount',                               // The number of targets that are considered unhealthy.
+    },
+
+    rds:: {
+      AuroraGlobalDBDataTransferBytes::               'AuroraGlobalDBDataTransferBytes',                  // Aurora - Cluster - MySQL/PostgreSQL  - The amount of redo log data transferred from the master AWS Region to a secondary AWS Region.
+      AuroraGlobalDBProgressLag::                     'AuroraGlobalDBProgressLag',                        // Aurora - Cluster - MySQL/PostgreSQL  - The measure of how far the secondary cluster is behind the primary cluster for both user transactions and system transactions.
+      AuroraGlobalDBReplicatedWriteIO::               'AuroraGlobalDBReplicatedWriteIO',                  // Aurora - Cluster - MySQL/PostgreSQL  - The number of write I/O operations replicated from the primary AWS Region to the cluster volume in a secondary AWS Region.
+      AuroraGlobalDBReplicationLag::                  'AuroraGlobalDBReplicationLag',                     // Aurora - Cluster - MySQL/PostgreSQL  - The amount of lag when replicating updates from the primary AWS Region.
+      AuroraGlobalDBRPOLag::                          'AuroraGlobalDBRPOLag',                             // Aurora - Cluster - MySQL/PostgreSQL  - The recovery point objective (RPO) lag time.
+      AuroraVolumeBytesLeftTotal::                    'AuroraVolumeBytesLeftTotal',                       // Aurora - Cluster - MySQL             - The remaining available space for the cluster volume.
+      BacktrackChangeRecordsCreationRate::            'BacktrackChangeRecordsCreationRate',               // Aurora - Cluster - MySQL             - The number of backtrack change records created over 5 minutes for the DB cluster.
+      BacktrackChangeRecordsStored::                  'BacktrackChangeRecordsStored',                     // Aurora - Cluster - MySQL             - The number of backtrack change records used by the DB cluster.
+      BackupRetentionPeriodStorageUsed::              'BackupRetentionPeriodStorageUsed',                 // Aurora - Cluster - MySQL/PostgreSQL  - The total amount of backup storage used to support the point-in-time restore feature within the Aurora DB cluster's backup retention window.
+      ServerlessDatabaseCapacity::                    'ServerlessDatabaseCapacity',                       // Aurora - Cluster - MySQL/PostgreSQL  - The current capacity of the serverless DB cluster.
+      SnapshotStorageUsed::                           'SnapshotStorageUsed',                              // Aurora - Cluster - MySQL/PostgreSQL  - The total amount of backup storage consumed by all Aurora snapshots for an Aurora DB cluster outside its backup retention window.
+      TotalBackupStorageBilled::                      'TotalBackupStorageBilled',                         // Aurora - Cluster - MySQL/PostgreSQL  - The total amount of backup storage in bytes for which you are billed for a given Aurora DB cluster.
+      VolumeBytesUsed::                               'VolumeBytesUsed',                                  // Aurora - Cluster - MySQL/PostgreSQL  - The amount of storage used by your Aurora DB instance.
+      VolumeReadIOPs::                                'VolumeReadIOPs',                                   // Aurora - Cluster - MySQL/PostgreSQL  - The number of billed read I/O operations from a cluster volume within a 5-minute interval.
+      VolumeWriteIOPs::                               'VolumeWriteIOPs',                                  // Aurora - Cluster - MySQL/PostgreSQL  - The number of write disk I/O operations to the cluster volume, reported at 5-minute intervals.
+
+      AbortedClients::                                'AbortedClients',                                   // Aurora - Instance - MySQL            - The number of client connections that have not been closed properly.
+      ActiveTransactions::                            'ActiveTransactions',                               // Aurora - Instance - MySQL            - The average number of current transactions executing on an Aurora database instance per second.
+      ACUUtilization::                                'ACUUtilization',                                   // Aurora - Instance - MySQL/PostgreSQL - The average number of current transactions executing on an Aurora database instance per second.
+      AuroraBinlogReplicaLag::                        'AuroraBinlogReplicaLag',                           // Aurora - Instance - MySQL            - The amount of time that a binary log replica DB cluster running on Aurora MySQL-Compatible Edition lags behind the binary log replication source in s.
+      AuroraReplicaLag::                              'AuroraReplicaLag',                                 // Aurora - Instance - MySQL/PostgreSQL - For an Aurora replica, the amount of lag when replicating updates from the primary instance in ms.
+      AuroraReplicaLagMaximum::                       'AuroraReplicaLagMaximum',                          // Aurora - Instance - MySQL/PostgreSQL - The maximum amount of lag between the primary instance and any of the Aurora DB instance in the DB cluster in ms.
+      AuroraReplicaLagMinimum::                       'AuroraReplicaLagMinimum',                          // Aurora - Instance - MySQL/PostgreSQL - The minimum amount of lag between the primary instance and any of the Aurora DB instance in the DB cluster in ms.
+      AuroraSlowConnectionHandleCount::               'AuroraSlowConnectionHandleCount',                  // Aurora - Instance - MySQL            - The number of connections that have waited two seconds or longer to start the handshake.
+      AuroraSlowHandshakeCount::                      'AuroraSlowHandshakeCount',                         // Aurora - Instance - MySQL            - The number of connections that have taken 50 milliseconds or longer to finish the handshake.
+      BacktrackWindowActual::                         'BacktrackWindowActual',                            // Aurora - Instance - MySQL            - The difference between the target backtrack window and the actual backtrack window.
+      BacktrackWindowAlert::                          'BacktrackWindowAlert',                             // Aurora - Instance - MySQL            - The number of times that the actual backtrack window is smaller than the target backtrack window for a given period of time.
+      BlockedTransactions::                           'BlockedTransactions',                              // Aurora - Instance - MySQL            - The average number of transactions in the database that are blocked per second.
+      BufferCacheHitRatio::                           'BufferCacheHitRatio',                              // Aurora - Instance - MySQL/PostgreSQL - The percentage of requests that are served by the buffer cache.
+      CommitLatency::                                 'CommitLatency',                                    // Aurora - Instance - MySQL/PostgreSQL - The average duration of commit operations.
+      CommitThroughput::                              'CommitThroughput',                                 // Aurora - Instance - MySQL/PostgreSQL - The average number of commit operations per second.
+      ConnectionAttempts::                            'ConnectionAttempts',                               // Aurora - Instance - MySQL/PostgreSQL - The number of attempts to connect to an instance, whether successful or not.
+      CPUCreditBalance::                              'CPUCreditBalance',                                 // Aurora - Instance - MySQL/PostgreSQL - The number of CPU credits that an instance has accumulated, reported at 5-minute intervals.
+      CPUCreditUsage::                                'CPUCreditUsage',                                   // Aurora - Instance - MySQL/PostgreSQL - The number of CPU credits consumed during the specified period, reported at 5-minute intervals.
+      CPUUtilization::                                'CPUUtilization',                                   // Aurora - Instance - MySQL/PostgreSQL - The percentage of CPU used by an Aurora DB instance.
+      DatabaseConnections::                           'DatabaseConnections',                              // Aurora - Instance - MySQL/PostgreSQL - The number of client network connections to the database instance.
+      DDLLatency::                                    'DDLLatency',                                       // Aurora - Instance - MySQL            - The average duration of requests such as example, create, alter, and drop requests.
+      DDLThroughput::                                 'DDLThroughput',                                    // Aurora - Instance - MySQL/PostgreSQL - The average number of DDL requests per second.
+      Deadlocks::                                     'Deadlocks',                                        // Aurora - Instance - MySQL/PostgreSQL - The average number of deadlocks in the database per second.
+      DeleteLatency::                                 'DeleteLatency',                                    // Aurora - Instance - MySQL            - The average duration of delete operations
+      DeleteThroughput::                              'DeleteThroughput',                                 // Aurora - Instance - MySQL            - The average number of delete queries per second.
+      DiskQueueDepth::                                'DiskQueueDepth',                                   // Aurora - Instance - MySQL/PostgreSQL - The number of outstanding read/write requests waiting to access the disk.
+      DMLLatency::                                    'DMLLatency',                                       // Aurora - Instance - MySQL            - The average duration of inserts, updates, and deletes.
+      DMLThroughput::                                 'DMLThroughput',                                    // Aurora - Instance - MySQL            - The average number of inserts, updates, and deletes per second.
+      EBSByteBalance::                                'EBSByteBalance%',                                  // Aurora - Instance - MySQL/PostgreSQL - The percentage of throughput credits remaining in the burst bucket of the RDS database.
+      EBSIOBalance::                                  'EBSIOBalance%',                                    // Aurora - Instance - MySQL/PostgreSQL - The percentage of I/O credits remaining in the burst bucket of the RDS database.
+      EngineUptime::                                  'EngineUptime',                                     // Aurora - Instance - MySQL/PostgreSQL - The amount of time that the instance has been running.
+      FreeableMemory::                                'FreeableMemory',                                   // Aurora - Instance - MySQL/PostgreSQL - The amount of available random access memory.
+      FreeLocalStorage::                              'FreeLocalStorage',                                 // Aurora - Instance - MySQL/PostgreSQL - The amount of local storage available.
+      InsertLatency::                                 'InsertLatency',                                    // Aurora - Instance - MySQL            - The average duration of insert operations.
+      InsertThroughput::                              'InsertThroughput',                                 // Aurora - Instance - MySQL            - The average number of insert operations per second.
+      LoginFailures::                                 'LoginFailures',                                    // Aurora - Instance - MySQL            - The average number of failed login attempts per second.
+      MaximumUsedTransactionIDs::                     'MaximumUsedTransactionIDs',                        // Aurora - Instance - PostgreSQL       - The age of the oldest unvacuumed transaction ID, in transactions.
+      NetworkReceiveThroughput::                      'NetworkReceiveThroughput',                         // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput received from clients by each instance in the Aurora MySQL DB cluster.
+      NetworkThroughput::                             'NetworkThroughput',                                // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput both received from and transmitted to clients by each instance in the Aurora MySQL DB cluster.
+      NetworkTransmitThroughput::                     'NetworkTransmitThroughput',                        // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput sent to clients by each instance in the Aurora DB cluster.
+      NumBinaryLogFiles::                             'NumBinaryLogFiles',                                // Aurora - Instance - MySQL            - The number of binlog files generated.
+      Queries::                                       'Queries',                                          // Aurora - Instance - MySQL            - The average number of queries executed per second.
+      RDSToAuroraPostgreSQLReplicaLag::               'RDSToAuroraPostgreSQLReplicaLag',                  // Aurora - Instance - PostgreSQL       - The lag when replicating updates from the primary RDS PostgreSQL instance to other nodes in the cluster
+      ReadIOPS::                                      'ReadIOPS',                                         // Aurora - Instance - MySQL/PostgreSQL - The average number of disk I/O operations per second but the reports read and write separately, in 1-minute intervals.
+      ReadLatency::                                   'ReadLatency',                                      // Aurora - Instance - MySQL/PostgreSQL - The average amount of time taken per disk I/O operation.
+      ReadThroughput::                                'ReadThroughput',                                   // Aurora - Instance - MySQL/PostgreSQL - The average number of bytes read from disk per second.
+      ReplicationSlotDiskUsage::                      'ReplicationSlotDiskUsage',                         // Aurora - Instance - PostgreSQL       - The amount of disk space consumed by replication slot files.
+      ResultSetCacheHitRatio::                        'ResultSetCacheHitRatio',                           // Aurora - Instance - MySQL            - The percentage of requests that are served by the Resultset cache.
+      RollbackSegmentHistoryListLength::              'RollbackSegmentHistoryListLength',                 // Aurora - Instance - MySQL            - The undo logs that record committed transactions with delete-marked records. These records are scheduled to be processed by the InnoDB purge operation.
+      RowLockTime::                                   'RowLockTime',                                      // Aurora - Instance - MySQL            - The total time spent acquiring row locks for InnoDB tables.
+      SelectLatency::                                 'SelectLatency',                                    // Aurora - Instance - MySQL            - The average amount of time for select operations.
+      SelectThroughput::                              'SelectThroughput',                                 // Aurora - Instance - MySQL            - The average number of select queries per second.
+      StorageNetworkReceiveThroughput::               'StorageNetworkReceiveThroughput',                  // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput received from the Aurora storage subsystem by each instance in the DB cluster.
+      StorageNetworkThroughput::                      'StorageNetworkThroughput',                         // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput received from and sent to the Aurora storage subsystem by each instance in the Aurora MySQL DB cluster.
+      StorageNetworkTransmitThroughput::              'StorageNetworkTransmitThroughput',                 // Aurora - Instance - MySQL/PostgreSQL - The amount of network throughput sent to the Aurora storage subsystem by each instance in the Aurora MySQL DB cluster.
+      SumBinaryLogSize::                              'SumBinaryLogSize',                                 // Aurora - Instance - MySQL            - The total size of the binlog files.
+      SwapUsage::                                     'SwapUsage',                                        // Aurora - Instance - MySQL/PostgreSQL - The amount of swap space used.
+      TempStorageIOPS::                               'TempStorageIOPS',                                  // Aurora - Instance - MySQL/PostgreSQL - The number of IOPS for both read and writes on local storage attached to the DB instance. This metric represents a count and is measured once per second.
+      TempStorageThroughput::                         'TempStorageThroughput',                            // Aurora - Instance - MySQL/PostgreSQL - The amount of data transferred to and from local storage associated with the DB instance. This metric represents bytes and is measured once per second.
+      TransactionLogsDiskUsage::                      'TransactionLogsDiskUsage',                         // Aurora - Instance - PostgreSQL       - The amount of disk space consumed by transaction logs on the Aurora PostgreSQL DB instance.
+      UpdateLatency::                                 'UpdateLatency',                                    // Aurora - Instance - MySQL            - The average amount of time taken for update operations.
+      UpdateThroughput::                              'UpdateThroughput',                                 // Aurora - Instance - MySQL            - The average number of updates per second.
+      WriteIOPS::                                     'WriteIOPS',                                        // Aurora - Instance - MySQL/PostgreSQL - The number of Aurora storage write records generated per second.
+      WriteLatency::                                  'WriteLatency',                                     // Aurora - Instance - MySQL/PostgreSQL - The average amount of time taken per disk I/O operation.
+      WriteThroughput::                               'WriteThroughput',                                  // Aurora - Instance - MySQL/PostgreSQL - The average number of bytes written to persistent storage every second.
+
+      AvailabilityPercentage::                        'AvailabilityPercentage',                           // Proxy - The percentage of time for which the target group was available in the role indicated by the dimension. This metric is reported every minute. The most useful statistic for this metric is Average.
+      ClientConnections::                             'ClientConnections',                                // Proxy - The current number of client connections. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      ClientConnectionsClosed::                       'ClientConnectionsClosed',                          // Proxy - The number of client connections closed. The most useful statistic for this metric is Sum.
+      ClientConnectionsNoTLS::                        'ClientConnectionsNoTLS',                           // Proxy - The current number of client connections without Transport Layer Security (TLS). This metric is reported every minute. The most useful statistic for this metric is Sum.
+      ClientConnectionsReceived::                     'ClientConnectionsReceived',                        // Proxy - The number of client connection requests received. The most useful statistic for this metric is Sum.
+      ClientConnectionsSetupFailedAuth::              'ClientConnectionsSetupFailedAuth',                 // Proxy - The number of client connection attempts that failed due to misconfigured authentication or TLS. The most useful statistic for this metric is Sum.
+      ClientConnectionsSetupSucceeded::               'ClientConnectionsSetupSucceeded',                  // Proxy - The number of client connections successfully established with any authentication mechanism with or without TLS. The most useful statistic for this metric is Sum.
+      ClientConnectionsTLS::                          'ClientConnectionsTLS',                             // Proxy - The current number of client connections with TLS. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      DatabaseConnectionRequests::                    'DatabaseConnectionRequests',                       // Proxy - The number of requests to create a database connection. The most useful statistic for this metric is Sum.
+      DatabaseConnectionRequestsWithTLS::             'DatabaseConnectionRequestsWithTLS',                // Proxy - The number of requests to create a database connection with TLS. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsBorrowLatency::              'DatabaseConnectionsBorrowLatency',                 // Proxy - The time in microseconds that it takes for the proxy being monitored to get a database connection. The most useful statistic for this metric is Average.
+      DatabaseConnectionsCurrentlyBorrowed::          'DatabaseConnectionsCurrentlyBorrowed',             // Proxy - The current number of database connections in the borrow state. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsCurrentlyInTransaction::     'DatabaseConnectionsCurrentlyInTransaction',        // Proxy - The current number of database connections in a transaction. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsCurrentlySessionPinned::     'DatabaseConnectionsCurrentlySessionPinned',        // Proxy - The current number of database connections currently pinned because of operations in client requests that change session state. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsSetupFailed::                'DatabaseConnectionsSetupFailed',                   // Proxy - The number of database connection requests that failed. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsSetupSucceeded::             'DatabaseConnectionsSetupSucceeded',                // Proxy - The number of database connections successfully established with or without TLS. The most useful statistic for this metric is Sum.
+      DatabaseConnectionsWithTLS::                    'DatabaseConnectionsWithTLS',                       // Proxy - The current number of database connections with TLS. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      MaxDatabaseConnectionsAllowed::                 'MaxDatabaseConnectionsAllowed',                    // Proxy - The maximum number of database connections allowed. This metric is reported every minute. The most useful statistic for this metric is Sum.
+      QueryDatabaseResponseLatency::                  'QueryDatabaseResponseLatency',                     // Proxy - The time in microseconds that the database took to respond to the query. The most useful statistic for this metric is Average.
+      QueryRequests::                                 'QueryRequests',                                    // Proxy - The number of queries received. A query including multiple statements is counted as one query. The most useful statistic for this metric is Sum.
+      QueryRequestsNoTLS::                            'QueryRequestsNoTLS',                               // Proxy - The number of queries received from non-TLS connections. A query including multiple statements is counted as one query. The most useful statistic for this metric is Sum.
+      QueryRequestsTLS::                              'QueryRequestsTLS',                                 // Proxy - The number of queries received from TLS connections. A query including multiple statements is counted as one query. The most useful statistic for this metric is Sum.
+      QueryResponseLatency::                          'QueryResponseLatency',                             // Proxy - The time in microseconds between getting a query request and the proxy responding to it. The most useful statistic for this metric is Average.
+
+      BinLogDiskUsage::                               'BinLogDiskUsage',                                  // The amount of disk space occupied by binary logs. If automatic backups are enabled for MySQL and MariaDB instances, including read replicas, binary logs are created.
+      BurstBalance::                                  'BurstBalance',                                     // The percent of General Purpose SSD (gp2) burst-bucket I/O credits available.
+      FailedSQLServerAgentJobsCount::                 'FailedSQLServerAgentJobsCount',                    // The number of failed Microsoft SQL Server Agent jobs during the last minute.
+      FreeStorageSpace::                              'FreeStorageSpace',                                 // The amount of available storage space.
+      OldestReplicationSlotLag::                      'OldestReplicationSlotLag',                         // The lagging size of the replica lagging the most in terms of write-ahead log (WAL) data received. Applies to PostgreSQL.
+      ReplicaLag::                                    'ReplicaLag',                                       // For read replica configurations, the amount of time in seconds a read replica DB instance lags behind the source DB instance. Applies to MariaDB, Microsoft SQL Server, MySQL, Oracle, and PostgreSQL read replicas.
+      TransactionLogsGeneration::                     'TransactionLogsGeneration',                        // The size of transaction logs generated per second. Applies to PostgreSQL.
+    },
+
+    route53:: {
+      ChildHealthCheckHealthyCount::                  'ChildHealthCheckHealthyCount',                     // Health Checks - For a calculated health check, the number of health checks that are healthy among the health checks that Route 53 is monitoring.
+      ConnectionTime::                                'ConnectionTime',                                   // Health Checks - The average time, in milliseconds, that it took Route 53 health checkers to establish a TCP connection with the endpoint.
+      HealthCheckPercentageHealthy::                  'HealthCheckPercentageHealthy',                     // Health Checks - The percentage of Route 53 health checkers that consider the selected endpoint to be healthy.
+      HealthCheckStatus::                             'HealthCheckStatus',                                // Health Checks - The status of the health check endpoint that CloudWatch is checking. 1 indicates healthy, and 0 indicates unhealthy.
+      SSLHandshakeTime::                              'SSLHandshakeTime',                                 // Health Checks - The average time, in milliseconds, that it took Route 53 health checkers to complete the SSL handshake.
+      TimeToFirstByte::                               'TimeToFirstByte',                                  // Health Checks - The average time, in milliseconds, that it took Route 53 health checkers to receive the first byte of the response to an HTTP or HTTPS request
+
+      DNSQueries::                                    'DNSQueries',                                       // Hosted Zones - For all the records in a hosted zone, the number of DNS queries that Route 53 responds to in a specified time period.
+      DNSSECInternalFailure::                         'DNSSECInternalFailure',                            // Hosted Zones - Value is 1 if any object in the hosted zone is in an INTERNAL_FAILURE state. Otherwise, value is 0.
+      DNSSECKeySigningKeysNeedingAction::             'DNSSECKeySigningKeysNeedingAction',                // Hosted Zones - Number of key signing keys (KSKs) that have an ACTION_NEEDED state (due to KMS failure).
+      DNSSECKeySigningKeyMaxNeedingActionAge::        'DNSSECKeySigningKeyMaxNeedingActionAge',           // Hosted Zones - Time elapsed since the key signing key (KSK) was set to the ACTION_NEEDED state.
+      DNSSECKeySigningKeyAge::                        'DNSSECKeySigningKeyAge',                           // Hosted Zones - The time elapsed since the key signing key (KSK) was created (not since it was activated).
+    },
+
+    route53resolver:: {
+      EndpointHealthyENICount::                       'EndpointHealthyENICount',                          // Endpoints    - The number of elastic network interfaces in the OPERATIONAL status.
+      EndpointUnHealthyENICount::                     'EndpointUnHealthyENICount',                        // Endpoints    - The number of elastic network interfaces in the AUTO_RECOVERING status.
+      InboundQueryVolume::                            'InboundQueryVolume',                               // Endpoints/IP - The number of DNS queries forwarded from the network to VPCs through the endpoint/IP.
+      OutboundQueryAggregatedVolume::                 'OutboundQueryAggregatedVolume',                    // Endpoints/IP - The total number of DNS queries forwarded from VPCs to the network.
+      OutboundQueryVolume::                           'OutboundQueryVolume',                              // Endpoints    - The number of DNS queries forwarded from VPCs to the network through the endpoint.
+
+
+    },
+
+    s3:: {
+      AllRequests::                                   'AllRequests',                                      // The total number of HTTP requests made to an Amazon S3 bucket, regardless of type.
+      BucketSizeBytes::                               'BucketSizeBytes',                                  // The amount of data in bytes that is stored in a bucket.
+      BytesDownloaded::                               'BytesDownloaded',                                  // The number of bytes downloaded for requests made to an Amazon S3 bucket, where the response includes a body.
+      BytesUploaded::                                 'BytesUploaded',                                    // The number of bytes uploaded for requests made to an Amazon S3 bucket, where the request includes a body.
+      DeleteRequests::                                'DeleteRequests',                                   // The number of HTTP DELETE requests made for objects in an Amazon S3 bucket.
+      Errors4xx::                                     '4xxErrors',                                        // The number of HTTP 4xx client error status code requests made to an Amazon S3 bucket with a value of either 0 or 1.
+      Errors5xx::                                     '5xxErrors',                                        // The number of HTTP 5xx server error status code requests made to an Amazon S3 bucket with a value of either 0 or 1.
+      FirstByteLatency::                              'FirstByteLatency',                                 // The per-request time from the complete request being received by an Amazon S3 bucket to when the response starts to be returned.
+      GetRequests::                                   'GetRequests',                                      // The number of HTTP GET requests made for objects in an Amazon S3 bucket.
+      HeadRequests::                                  'HeadRequests',                                     // The number of HTTP HEAD requests made to an Amazon S3 bucket.
+      ListRequests::                                  'ListRequests',                                     // The number of HTTP requests that list the contents of a bucket.
+      NumberOfObjects::                               'NumberOfObjects',                                  // The total number of objects stored in a bucket for all storage classes.
+      PostRequests::                                  'PostRequests',                                     // The number of HTTP POST requests made to an Amazon S3 bucket.
+      PutRequests::                                   'PutRequests',                                      // The number of HTTP PUT requests made for objects in an Amazon S3 bucket.
+      SelectBytesReturned::                           'SelectBytesReturned',                              // The number of bytes of data returned with Amazon S3 SELECT Object Content requests in an Amazon S3 bucket.
+      SelectBytesScanned::                            'SelectBytesScanned',                               // The number of bytes of data scanned with Amazon S3 SELECT Object Content requests in an Amazon S3 bucket
+      SelectRequests::                                'SelectRequests',                                   // The number of Amazon S3 SELECT Object Content requests made for objects in an Amazon S3 bucket.
+      TotalRequestLatency::                           'TotalRequestLatency',                              // The elapsed per-request time from the first byte received to the last byte sent to an Amazon S3 bucket.
+    },
   },
 }

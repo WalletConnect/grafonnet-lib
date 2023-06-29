@@ -40,7 +40,7 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     alias       = "CPU (Max)",
     datasource  = datasource,
     namespace   = grafana.target.cloudwatch.namespace.AmazonMQ,
-    metricName  = grafana.target.cloudwatch.metrics.amqp.CpuUtilization,
+    metricName  = grafana.target.cloudwatch.metrics.amazonmq.CpuUtilization,
     dimensions  = {
       Broker: broker,
     },
@@ -52,7 +52,7 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     alias       = "CPU (Avg)",
     datasource  = datasource,
     namespace   = grafana.target.cloudwatch.namespace.AmazonMQ,
-    metricName  = grafana.target.cloudwatch.metrics.amqp.CpuUtilization,
+    metricName  = grafana.target.cloudwatch.metrics.amazonmq.CpuUtilization,
     dimensions  = {
       Broker: broker,
     },
