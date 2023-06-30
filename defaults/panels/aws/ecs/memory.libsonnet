@@ -52,7 +52,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,
@@ -65,7 +65,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,

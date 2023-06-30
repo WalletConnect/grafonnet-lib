@@ -1,5 +1,23 @@
-local panel = import 'panel.libsonnet';
-local fieldConfig = import '../field_config.libsonnet';
+local panel         = import 'panel.libsonnet';
+local configuration = import 'configuration.libsonnet';
+local fieldConfig   = import '../field_config.libsonnet';
+
+local common        = import '../common.libsonnet';
+
+local defaultGraphConfig = common.GraphFieldConfig (
+  drawStyle         = common.graphDrawStyle.Line,
+  lineInterpolation = common.lineInterpolation.Linear,
+  lineWidth         = 1,
+  fillOpacity       = 0,
+  gradientMode      = common.graphGradientMode.None,
+  barAlignment      = common.barAlignment.Center,
+  stacking          = common.StackingConfig(
+    group           = 'A',
+    mode            = common.stackingMode.None,
+  ),
+  axisGridShow      = true,
+  axisCenteredZero  = false,
+);
 
 {
   type:         'timeseries',
@@ -24,11 +42,6 @@ local fieldConfig = import '../field_config.libsonnet';
     },
   },
 
-
-  configure(configuration):: self {
-    fieldConfig+: configuration.fieldConfig,
-    options+:     configuration.options,
-  },
 
   addPanelThreshold(
     op,
@@ -70,8 +83,11 @@ local fieldConfig = import '../field_config.libsonnet';
       thresholdsStyle   = $.defaults_cfg.thresholdsStyle,   //
       legend            = null,                             //
       tooltip           = null,                             //
-    ):: {
-      fieldConfig: fieldConfig.new(
+    ):: $._new(
+      legend  = legend,
+      tooltip = tooltip,
+    ) {
+      fieldConfig+: fieldConfig.new(
         custom = {
           [if axisGridShow      != null then 'axisGridShow'     ]:  axisGridShow,
           [if axisLabel         != null then 'axisLabel'        ]:  axisLabel,
@@ -95,18 +111,12 @@ local fieldConfig = import '../field_config.libsonnet';
           [if thresholdsStyle   != null then 'thresholdsStyle'  ]:  thresholdsStyle,
         }
       ),
-      options: {
-        [if legend  != null then 'legend' ]:  legend,
-        [if tooltip != null then 'tooltip']:  tooltip,
-      },
 
 
       withThresholds(baseColor, steps = [])::             $.withThresholds    (self, baseColor, steps),
       withThresholdStyle(style)::                         $.withThresholdStyle(self, style),
       addThreshold(threshold)::                           $.addThreshold      (self, threshold),
       addThresholds(steps)::                              $.addThresholds     (self, steps),
-      addOverride(override)::                             $.addOverride       (self, override),
-      addOverrides(overrides)::                           $.addOverrides      (self, overrides),
       addMapping(mapping)::                               $.addMapping        (self, mapping),
       addMappings(mappings)::                             $.addMappings       (self, mappings),
       withColor(mode, fixedColor = null)::                $.withColor         (self, mode, fixedColor),
@@ -114,7 +124,7 @@ local fieldConfig = import '../field_config.libsonnet';
       withUnit(unit)::                                    $.withUnit          (self, unit),
       withSpanNulls(spanNulls)::                          $.withSpanNulls     (self, spanNulls),
     },
-  },
+  } + configuration,
 
   withThresholds(_self, baseColor, steps = []):: _self {
     fieldConfig+: {
@@ -151,13 +161,6 @@ local fieldConfig = import '../field_config.libsonnet';
     }
   },
   addThresholds(_self, steps):: std.foldl(function(p, s) p.addThreshold(s), steps, _self),
-
-  addOverride(_self, override):: _self {
-    fieldConfig+: {
-      overrides+: [override],
-    }
-  },
-  addOverrides(_self, overrides):: std.foldl(function(p, s) p.addOverride(s), overrides, _self),
 
   addMapping(_self, mapping):: _self {
     fieldConfig+: {

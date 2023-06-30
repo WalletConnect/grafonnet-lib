@@ -1,3 +1,5 @@
+local common        = import '../common.libsonnet';
+
 {
   /**
    * Creates a pie chart panel.
@@ -26,22 +28,23 @@
    */
   new(
     title,
-    description='',
-    span=null,
-    min_span=null,
-    datasource=null,
-    height=null,
-    aliasColors={},
-    pieType='pie',
-    valueName='current',
-    showLegend=true,
-    showLegendPercentage=true,
-    legendType='Right side',
-    repeat=null,
-    repeatDirection=null,
-    maxPerRow=null,
+    description           = '',
+    span                  = null,
+    min_span              = null,
+    datasource            = null,
+    height                = null,
+    aliasColors           = {},
+    pieType               = $.pieTypes.Pie,
+    valueName             = 'current',
+    showLegend            = true,
+    showLegendPercentage  = true,
+    legendType            = 'Right side',
+    repeat                = null,
+    repeatDirection       = null,
+    maxPerRow             = null,
   ):: {
     type: 'piechart',
+
     fieldConfig: {},
     [if description != null then 'description']: description,
     pieType: pieType,
@@ -61,18 +64,38 @@
       percentage: showLegendPercentage,
     },
     legendType: legendType,
-    targets: [
-    ],
-    _nextTarget:: 0,
-    addTarget(target):: self {
-      local nextTarget = super._nextTarget,
-      _nextTarget: nextTarget + 1,
-      targets+: [target { refId: std.char(std.codepoint('A') + nextTarget) }],
-    },
-    addOverride(override):: self {
-      fieldConfig+: {
-        overrides+: [override],
-      },
+
+    withPieType(pieType)::  $.withPieType    (self, pieType),
+  },
+
+  PieChartLegendOptions:: common.VizLegendOptions {
+    values:         [],                           // Array<$.pieChartLegendValues>
+  },
+  Options:: common.OptionsWithTooltip + common.SingleStatBaseOptions {
+    displayLabels:  [],                           // Array<$.pieChartLabels>
+    legend:         $.PieChartLegendOptions,
+    pieType:        $.pieChartType,
+  },
+
+  withPieType(_self, pieType):: _self {
+    options+: {
+      pieType: pieType,
     },
   },
+
+  pieTypes:: {
+    Donut::   'donut',
+    Pie::     'pie',
+  },
+
+  pieChartLabels:: {
+    Name::    'name',
+    Percent:: 'percent',
+    Value::   'value',
+  },
+
+  pieChartLegendValues:: {
+    Percent:: 'percent',
+    Value::   'value',
+  }
 }

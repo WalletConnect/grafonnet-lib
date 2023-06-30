@@ -54,11 +54,10 @@
       [if timeRegions != null     then 'timeRegions'      ]: timeRegions,
       [if timeShift != null       then 'timeShift'        ]: timeShift,
       [if transparent != null     then 'transparent'      ]: transparent,
-    } +
-
-    {
-      // Targets
       targets: [],
+
+
+      // Targets
       _nextTarget:: 0,
       addTarget(target):: self {
         local nextTarget = super._nextTarget,
@@ -72,7 +71,6 @@
       },
       addTargets(targets):: std.foldl(function(p, t) p.addTarget(t), targets, self),
 
-
       // Links
       links: [],
       addLink(link):: self {
@@ -80,6 +78,11 @@
       },
       addLinks(links):: std.foldl(function(p, l) p.addLink(l), links, self),
 
+      // Configuration
+      configure(configuration):: self {
+        fieldConfig+: configuration.fieldConfig,
+        options+:     configuration.options,
+      },
 
       // Alerts
       setAlert(alert):: self {
