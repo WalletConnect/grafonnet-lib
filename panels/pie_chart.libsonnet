@@ -1,3 +1,4 @@
+local panel         = import 'panel.libsonnet';
 local common        = import '../common.libsonnet';
 
 {
@@ -98,4 +99,4 @@ local common        = import '../common.libsonnet';
     Percent:: 'percent',
     Value::   'value',
   }
-}
+} + panel

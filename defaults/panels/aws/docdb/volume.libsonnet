@@ -16,7 +16,7 @@ local defaults        = import '../../../../defaults.libsonnet';
 
   .configure(
     defaults.configuration.timeseries
-    .withUnit(grafana.fieldConfig.units.DecBytes)
+    .withUnit(grafana.common.units.DecBytes)
     .addThreshold(grafana.threshold.new(
       value = grafana.utils.units.size_dec(TB = 40),  // 40TB, Max is 64TB.
       color = defaults.values.colors.critical,

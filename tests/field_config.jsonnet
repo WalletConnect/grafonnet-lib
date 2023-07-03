@@ -8,7 +8,7 @@ local grafana = import '../grafana.libsonnet';
     one_steps:        grafana.fieldConfig.new().withThresholds('blue', [{ value: 50, color: 'yellow' }]),
   },
 
-  withThresholdStyle: grafana.fieldConfig.new().withThresholdStyle(grafana.fieldConfig.thresholdStyle.Area),
+  withThresholdStyle: grafana.fieldConfig.new().withThresholdStyle(grafana.common.graphTresholdsStyle.Area),
 
   addThreshold:       grafana.fieldConfig.new().addThreshold(grafana.threshold.new(50, 'red')),
   addThresholds:      grafana.fieldConfig.new().addThresholds([
@@ -23,8 +23,8 @@ local grafana = import '../grafana.libsonnet';
   ]),
 
   withColor: {
-    fixed:            grafana.fieldConfig.new().withColor(grafana.fieldConfig.colorMode.Fixed, 'red'),
-    mode:             grafana.fieldConfig.new().withColor(grafana.fieldConfig.colorMode.Thresholds)
+    fixed:            grafana.fieldConfig.new().withColor(grafana.common.fieldColorMode.Fixed, 'red'),
+    mode:             grafana.fieldConfig.new().withColor(grafana.common.fieldColorMode.Thresholds)
   },
 
   withSoftLimit: {
@@ -33,5 +33,5 @@ local grafana = import '../grafana.libsonnet';
     two_steps:        grafana.fieldConfig.new().withSoftLimit(50, 90),
   },
 
-  withUnit:       grafana.fieldConfig.new().withUnit(grafana.fieldConfig.units.Percent),
+  withUnit:       grafana.fieldConfig.new().withUnit(grafana.common.units.Percent),
 }

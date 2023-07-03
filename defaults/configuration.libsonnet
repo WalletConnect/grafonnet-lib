@@ -19,7 +19,7 @@ local values          = import '../defaults/values.libsonnet';
     legend  = grafana.common.legend(),
     tooltip = grafana.common.tooltip(),
   )
-  .withThresholdStyle(grafana.fieldConfig.thresholdStyle.Area)
+  .withThresholdStyle(grafana.common.graphTresholdsStyle.Area)
   .addThreshold(grafana.threshold.new(
     value = values.resource.thresholds.warning,
     color = values.colors.warn,
@@ -28,7 +28,7 @@ local values          = import '../defaults/values.libsonnet';
     value = values.resource.thresholds.critical,
     color = values.colors.critical,
   ))
-  .withUnit(grafana.fieldConfig.units.Percent)
+  .withUnit(grafana.common.units.Percent)
   .withSoftLimit(
     axisSoftMin = 0,
     axisSoftMax = values.resource.thresholds.warning,

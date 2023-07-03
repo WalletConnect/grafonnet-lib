@@ -153,8 +153,8 @@ local alert_message(target, message, env, title, limit) =
       refid         = values.refid.CPU,
     ):: grafana.alertCondition.new(
       evaluatorParams = [ limit ],
-      evaluatorType   = grafana.alertCondition.evaluators.Above,
-      operatorType    = grafana.alertCondition.operators.And,
+      evaluatorType   = grafana.common.alerts.evaluators.Above,
+      operatorType    = grafana.common.alerts.operators.And,
       queryRefId      = '%s_%s' % [refid, strings.capitalize(reducer)],
       queryTimeStart  = timeStart,
       queryTimeEnd    = 'now',
@@ -168,8 +168,8 @@ local alert_message(target, message, env, title, limit) =
       refid         = values.refid.Memory,
     ):: grafana.alertCondition.new(
       evaluatorParams = [ limit ],
-      evaluatorType   = grafana.alertCondition.evaluators.Above,
-      operatorType    = grafana.alertCondition.operators.And,
+      evaluatorType   = grafana.common.alerts.evaluators.Above,
+      operatorType    = grafana.common.alerts.operators.And,
       queryRefId      = '%s_%s' % [refid, strings.capitalize(reducer)],
       queryTimeStart  = timeStart,
       queryTimeEnd    = 'now',

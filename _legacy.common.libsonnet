@@ -21,16 +21,6 @@
     [if width != null then 'width']: width,
   },
 
-  legendDisplayModes:: {
-    hidden::  'hidden',
-    list::    'list',
-    table::   'table',
-  },
-
-  legendPlacements:: {
-    bottom: 'bottom',
-    right:  'right',
-  }
 } + {
   tooltip(
     mode = $.tooltipModes.multi,
@@ -38,17 +28,5 @@
   ):: self + {
     [if mode != null then 'mode']: mode,
     [if sort != null then 'sort']: sort,
-  },
-
-  tooltipModes:: {
-    multi:      'multi',
-    none:       'none',
-    single:     'single',
-  },
-
-  sortOrders:: {
-    ascending:  'asc',
-    descending: 'desc',
-    none:       'none',
   },
 }

@@ -15,7 +15,7 @@ local defaults        = import '../../../../defaults.libsonnet';
   )
   .configure(
     defaults.configuration.timeseries
-    .withUnit(grafana.fieldConfig.units.Percent)
+    .withUnit(grafana.common.units.Percent)
     .withSoftLimit(
       axisSoftMin = 90,
       axisSoftMax = 100,

@@ -23,7 +23,7 @@ local defaults        = import '../../../../defaults.libsonnet';
         value = 0.5,
         color = defaults.values.colors.critical
       ))
-      .withThresholdStyle(grafana.fieldConfig.thresholdStyle.Area)
+      .withThresholdStyle(grafana.common.graphTresholdsStyle.Area)
   )
 
   .addTarget(grafana.targets.cloudwatch(

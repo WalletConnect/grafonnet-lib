@@ -23,14 +23,14 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
 
   .configure(
     defaults.configuration.timeseries
-    .withThresholdStyle(grafana.fieldConfig.thresholdStyle.Area)
+    .withThresholdStyle(grafana.common.graphTresholdsStyle.Area)
     .withThresholds(
       baseColor = defaults.values.colors.critical,
       steps = [
         { value: mem_threshold, color: defaults.values.colors.ok },
       ]
     )
-    .withUnit(grafana.fieldConfig.units.Kibibytes)
+    .withUnit(grafana.common.units.Kibibytes)
     .addOverride(grafana.override.newColorOverride(refid_Mem_Min, defaults.values.colors.memory_alt))
     .addOverride(grafana.override.newColorOverride(refid_Mem_Avg, defaults.values.colors.memory))
     .withSoftLimit(
@@ -38,7 +38,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
       axisSoftMax = max_memory,
     )
   )
-  .addPanelThreshold(
+  .XaddPanelThreshold(
     op            = grafana.alertCondition.evaluators.Below,
     value         = mem_threshold,
   )

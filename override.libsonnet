@@ -1,7 +1,9 @@
+local common = import './common.libsonnet';
+
 {
   new(
     name,
-    matcher     = $.matcher.field,
+    matcher     = common.fieldMatcher.ByFrameRefID,
     properties  = [],
   )::
   {
@@ -15,7 +17,7 @@
   newColorOverride(
     name,
     color,
-    matcher     = $.matcher.field,
+    matcher     = common.fieldMatcher.ByFrameRefID,
   )::
   {
     matcher: {
@@ -25,16 +27,9 @@
     properties: [{
       id: 'color',
       value: {
-        mode:       'fixed',
+        mode:       common.fieldColorMode.Fixed,
         fixedColor: color
       }
     }]
-  },
-
-  matcher:: {
-    name::    'byName',
-    regexp::  'byRegexp',
-    type::    'byType',
-    field::   'byFrameRefID',
   },
 }

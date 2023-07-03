@@ -19,13 +19,13 @@
    */
   new(
     evaluatorParams = [],
-    evaluatorType   = $.evaluators.Above,
-    operatorType    = $.operators.And,
+    evaluatorType   = common.alerts.evaluators.Above,
+    operatorType    = common.alerts.operators.And,
     queryRefId      = 'A',
     queryTimeStart  = '5m',
     queryTimeEnd    = 'now',
     reducerParams   = [],
-    reducerType     = $.reducers.Avg,
+    reducerType     = common.alerts.reducers.Avg,
   )::
     {
       evaluator: {
@@ -44,30 +44,4 @@
       },
       type: 'query',
     },
-
-
-  evaluators:: {
-    Above::           'gt',
-    Below::           'lt',
-  },
-
-  operators:: {
-    And::             'and',
-    Or::              'or',
-  },
-
-  reducers:: {
-    Avg::             'avg',
-    Min::             'min',
-    Max::             'max',
-    Sum::             'sum',
-    Count::           'count',
-    Last::            'last',
-    Median::          'median',
-    Diff::            'diff',
-    DiffAbs::         'diff_abs',
-    PercentDiff::     'percent_diff',
-    PercentDiffAbs::  'percent_diff_abs',
-    CountNonNull::    'count_non_null',
-  }
 }

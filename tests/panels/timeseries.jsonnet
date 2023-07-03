@@ -14,7 +14,7 @@ local grafana = import '../../grafana.libsonnet';
     one_steps:        grafana.panel.timeseries.configuration.new().withThresholds('blue', [{ value: 50, color: 'yellow' }]),
   },
 
-  withThresholdStyle: grafana.panel.timeseries.configuration.new().withThresholdStyle(grafana.fieldConfig.thresholdStyle.Area),
+  withThresholdStyle: grafana.panel.timeseries.configuration.new().withThresholdStyle(grafana.common.graphTresholdsStyle.Area),
 
   addThreshold:       grafana.panel.timeseries.configuration.new().addThreshold(grafana.threshold.new(50, 'red')),
   addThresholds:      grafana.panel.timeseries.configuration.new().addThresholds([
@@ -29,8 +29,8 @@ local grafana = import '../../grafana.libsonnet';
   ]),
 
   withColor: {
-    fixed:            grafana.panel.timeseries.configuration.new().withColor(grafana.fieldConfig.colorMode.Fixed, 'red'),
-    mode:             grafana.panel.timeseries.configuration.new().withColor(grafana.fieldConfig.colorMode.Thresholds)
+    fixed:            grafana.panel.timeseries.configuration.new().withColor(grafana.common.fieldColorMode.Fixed, 'red'),
+    mode:             grafana.panel.timeseries.configuration.new().withColor(grafana.common.fieldColorMode.Thresholds)
   },
 
   withSoftLimit: {
@@ -39,5 +39,5 @@ local grafana = import '../../grafana.libsonnet';
     two_steps:        grafana.panel.timeseries.configuration.new().withSoftLimit(50, 90),
   },
 
-  withUnit:       grafana.panel.timeseries.configuration.new().withUnit(grafana.fieldConfig.units.Percent),
+  withUnit:       grafana.panel.timeseries.configuration.new().withUnit(grafana.common.units.Percent),
 }

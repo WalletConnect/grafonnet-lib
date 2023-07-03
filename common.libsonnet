@@ -1,4 +1,5 @@
 {
+  colors:: import './colors.libsonnet',
   /**
    * These are the common properties available to all queries in all datasources.
    * Specific implementations will *extend* this interface, adding the required
@@ -678,7 +679,6 @@
    * @param mode                $.resourceDimensionMode
    * @param fixed               string                        Path to resource
    */
-  // Links to a resource (image/svg path)
   ResourceDimensionConfig(
     mode,
     fixed             = null,
@@ -756,6 +756,39 @@
     [if width               != null then 'width'              ]: width,
   },
 
+  /**
+   * User-defined value for a metric that triggers visual changes in a panel when this value is met or exceeded
+   * They are used to conditionally style and color visualizations based on query results , and can be applied to most visualizations.
+   *
+   * @param color               string                        Represents the color of the visual change that will occur in the dashboard when the threshold value is met or exceeded.
+   * @param value               number                        Value represents a specified metric for the threshold, which triggers a visual change in the dashboard when this value is met or exceeded.
+   */
+  Threshold(
+   color,
+   value             = null,
+ ):: {
+   color: color,
+   value: null
+ },
+
+  /**
+   * Thresholds configuration for a panel.
+   *
+   * @param mode                $.ThresholdsMode              Thresholds mode.
+   * @param steps               Array<$.Threshold>            Must be sorted by 'value', first value is always -Infinity
+   */
+  ThresholdsConfig(
+    mode,
+    steps,
+  ):: {
+    mode:               mode,
+    steps:              steps,
+
+    addStep(step):: self {
+      steps+: step,
+    },
+    addSteps(steps):: std.foldl(function(c, s) c.addStep(s), steps, self),
+  },
 
   ////////////////////////////////////////////////////////////////////////////
   // Constants
@@ -857,13 +890,13 @@
     Right::               1,
     Up::                  1,
   },
-  LineStyle:: {
+  lineStyle:: {
     Solid::               'solid',
     Dash::                'dash',
     Dot::                 'dot',
     Square::              'square',
   },
-  graphTresholdsStyleMode:: {
+  graphTresholdsStyle:: {
     Area::                'area',
     Dashed::              'dashed',
     DashedAndArea::       'dashed+area',
@@ -998,4 +1031,245 @@
     LTE::                   'lte',
     NEQ::                   'neq',
   },
+
+  fieldColorMode:: {
+    Thresholds::             'thresholds',
+    PaletteClassic::         'palette-classic',
+    PaletteClassicByName::   'palette-classic-by-name',
+    PaletteSaturated::       'palette-saturated',
+    ContinuousGrYlRd::       'continuous-GrYlRd',
+    ContinuousRdYlGr::       'continuous-RdYlGr',
+    ContinuousBlYlRd::       'continuous-BlYlRd',
+    ContinuousYlRd::         'continuous-YlRd',
+    ContinuousBlPu::         'continuous-BlPu',
+    ContinuousYlBl::         'continuous-YlBl',
+    ContinuousBlues::        'continuous-blues',
+    ContinuousReds::         'continuous-reds',
+    ContinuousGreens::       'continuous-greens',
+    ContinuousPurples::      'continuous-purples',
+    Fixed::                  'fixed',
+    Shades::                 'shades',
+  },
+  thresholdMode:: {
+  Absolute::                 'absolute',
+  Percentage::               'percentage',
+  },
+
+  matcher:: {
+    Any::                    'anyMatch',                                         // checks children
+    All::                    'allMatch',                                         // checks children
+    Invert::                 'invertMatch',                                      // checks child
+    Always::                 'alwaysMatch',
+    Never::                  'neverMatch',
+  },
+  fieldMatcher:: {
+    // Specific Types
+    Numeric::                'numeric',
+    Time::                   'time',                                             // Can be multiple times
+    First::                  'first',
+    FirstTimeField::         'firstTimeField',                                   // Only the first time field
+
+    // With arguments
+    ByType::                 'byType',
+    ByName::                 'byName',
+    ByNames::                'byNames',
+    ByRegexp::               'byRegexp',
+    ByRegexpOrNames::        'byRegexpOrNames',
+    ByFrameRefID::           'byFrameRefID',
+    ByValue::                'byValue',
+    // ByIndex::             'byIndex',
+    // ByLabel::             'byLabel',
+  },
+  frameMatcher:: {
+    ByName::                 'byName',
+    ByRefId::                'byRefId',
+    ByIndex::                'byIndex',
+  },
+  valueMatcherID:: {
+    Regex::                 'regex',
+    IsNull::                'isNull',
+    IsNotNull::             'isNotNull',
+    Greater::               'greater',
+    GreaterOrEqual::        'greaterOrEqual',
+    Lower::                 'lower',
+    LowerOrEqual::          'lowerOrEqual',
+    Equal::                 'equal',
+    NotEqual::              'notEqual',
+    Between::               'between',
+  },
+  repeatDirection:: {
+    Horizontal::            'h',
+    Vertical::              'v',
+  },
+
+  alerts:: {
+    evaluators:: {
+      Above::               'gt',
+      Below::               'lt',
+      OutsideRange::        'outside_range',
+      WithinRange::         'within_range',
+      NoValue::             'no_value',
+    },
+    operators:: {
+      And::                 'and',
+      Or::                  'or',
+    },
+    reducers:: {
+      Avg::                 'avg',
+      Min::                 'min',
+      Max::                 'max',
+      Sum::                 'sum',
+      Count::               'count',
+      Last::                'last',
+      Median::              'median',
+      Diff::                'diff',
+      DiffAbs::             'diff_abs',
+      PercentDiff::         'percent_diff',
+      PercentDiffAbs::      'percent_diff_abs',
+      CountNonNull::        'count_non_null',
+    },
+    noDataModes::{
+      Alerting:             'alerting',
+      NoData:               'no_data',
+      KeepLastState:        'keep_state',
+      Ok:                   'ok',
+    },
+    executionErrorModes:: {
+      Alerting:             'alerting',
+      KeepLastState:        'keep_state',
+    },
+  },
+
+  units:: {
+    ////////////////////////////////////////////////
+    // Misc
+    Number::                      'none',
+    String::                      'string',
+    Short::                       'short',                        // Short
+    Percent::                     'percent',                      // Percent (0 - 100)
+    PercentUnit::                 'percentunit',                  // Percent (0.0 - 1.0))
+    Hex0x::                       'hex0x',                        // Hexadecimal with 0x prefix
+    Hex::                         'hex',                          // Hexadecimal
+    Scientific::                  'sci',                          // Scientific notation
+    Local::                       'locale',                       // Locale format
+
+    ////////////////////////////////////////////////
+    // Data
+    Bits::                        'bits',                         // Bits (IEC)
+    Bytes::                       'bytes',                        // Bytes (IEC)
+    Kibibytes::                   'kbytes',                       // Kibibytes (IEC)
+    Mebibytes::                   'mbytes',                       // Mebibytes (IEC)
+    Gibibytes::                   'gbytes',                       // Gibibytes (IEC)
+    Tebibytes::                   'tbytes',                       // Tebibytes (IEC)
+    Pebibytes::                   'pbytes',                       // Pebibytes (IEC)
+
+    BitsDec::                     'decbits',                      // Bits (DEC)
+    BytesDec::                    'decbytes',                     // Bytes (DEC)
+    Kilobytes::                   'deckbytes',                    // Kilobytes (DEC)
+    Megabytes::                   'decmbytes',                    // Megabytes (DEC)
+    Gigabytes::                   'decgbytes',                    // Gigabytes (DEC)
+    Terabytes::                   'dectbytes',                    // Terabytes (DEC)
+    Petabytes::                   'decpbytes',                    // Petabytes (DEC)
+
+    ////////////////////////////////////////////////
+    // Data Rate
+    PacketPerSecond::             'pps',                          // Packets/Second
+
+    BitsPerSecond::               'binbps',                       // Bits per second (IEC)
+    KibibitsPerSecond::           'Kibits',                       // Kibibits per second (IEC)
+    MebibitsPerSecond::           'Mibits',                       // Mebibits per second (IEC)
+    GibibitsPerSeconds::          'Gibits',                       // Gibibits per second (IEC)
+    TebibitsPerSeconds::          'Tibits',                       // Tebibits per second (IEC)
+    PebibitsPerSeconds::          'Pibits',                       // Pebibits per second (IEC)
+
+    BitsPerSecondDec::            'bps',                          // Bits per second (DEC)
+    KilobitsPerSecond::           'Kbits',                        // Kilobits per second (DEC)
+    MegabitsPerSeconds::          'Mbits',                        // Megabits per second (DEC)
+    GigabitsPerSeconds::          'Gbits',                        // Gigabits per second (DEC)
+    TerabitsPerSeconds::          'Tbits',                        // Terabits per second (DEC)
+    PetabitsPerSeconds::          'Pbits',                        // Petabits per second (DEC)
+
+    BytesPerSecond::              'binBps',                       // Bytes per second (IEC)
+    KibibytesPerSecond::          'KiBs',                         // Kibibytes per second (IEC)
+    MebibytesPerSeconds::         'MiBs',                         // Mebibytes per second (IEC)
+    GibibytesPerSeconds::         'GiBs',                         // Gibibytes per second (IEC)
+    TebibytesPerSeconds::         'TiBs',                         // Tebibytes per second (IEC)
+    PebibytesPerSeconds::         'PiBs',                         // Pebibytes per second (IEC)
+
+    BytesPerSecondDec::           'Bps',                          // Bytes per second (DEC)
+    KilobytesPerSecond::          'KBs',                          // Kilobytes per second (DEC)
+    MegabytesPerSeconds::         'MBs',                          // Megabytes per second (DEC)
+    GigabytesPerSeconds::         'GBs',                          // Gigabytes per second (DEC)
+    TerabytesPerSeconds::         'TBs',                          // Terabytes per second (DEC)
+    PetabytesPerSeconds::         'PBs',                          // Petabytes per second (DEC)
+
+    ////////////////////////////////////////////////
+    // Date & Time
+    DateTimeIso::                 'dateTimeAsIso',                // Date and time in ISO format
+    DateTimeIsoNoDateIfToday::    'dateTimeAsIsoNoDateIfToday',   // Date and time in ISO format, no date if today
+    DateTimeUS::                  'dateTimeAsUS',                 // Date and time in US format
+    DateTimeUSNoDateIfToday::     'dateTimeAsUSNoDateIfToday',    // Date and time in US format, no date if today
+    DateTimeLocal::               'dateTimeAsLocal',              // Date and time in local format
+    DateTimeLocalNoDateIfToday::  'dateTimeAsLocalNoDateIfToday', // Date and time in local format, no date if today
+    DateTimeAsSystem::            'dateTimeAsSystem',             // Date and time in system format
+    DateTimeFromNow::             'dateTimeFromNow',              // Date and time from now
+
+    ////////////////////////////////////////////////
+    // Hash Rate
+    HashesPerSecond::             'Hs',                           // Hashes per second
+    KiloHashesPerSecond::         'KHs',                          // Kilo hashes per second
+    MegaHashesPerSecond::         'MHs',                          // Mega hashes per second
+    GigaHashesPerSecond::         'GHs',                          // Giga hashes per second
+    TeraHashesPerSecond::         'THs',                          // Tera hashes per second
+    PetaHashesPerSecond::         'PHs',                          // Peta hashes per second
+    ExaHashesPerSecond::          'EHs',                          // Exa hashes per second
+
+    ////////////////////////////////////////////////
+    // Time
+    Nanoseconds::                 'ns',                           // Nanoseconds
+    Microseconds::                'µs',                           // Microseconds
+    Milliseconds::                'ms',                           // Milliseconds
+    Seconds::                     's',                            // Seconds
+    Minutes::                     'm',                            // Minutes
+    Hours::                       'h',                            // Hours
+    Days::                        'd',                            // Days
+
+    Hertz::                       'hertz',                        // Hertz (1/s)
+    DurationMilliseconds::        'dtdurationms',                 // Duration in milliseconds
+    DurationSeconds::             'dtdurations',                  // Duration in seconds
+    DurationHMS::                 'dthms',                        // Duration (hh:mm:ss)
+    DurationDHMS::                'dtdhms',                       // Duration (d hh:mm:ss)
+    Timeticks::                   'timeticks',                    // Timeticks (s/100)
+    ClockMilliseconds::           'clockms',                      // Clock in milliseconds
+    ClockSeconds::                'clocks',                       // Clock in seconds
+
+    ////////////////////////////////////////////////
+    // Throughput
+    CountsPerSecond::             'cps',                          // Counts per second
+    OpsPerSecond::                'ops',                          // Operations per second
+    RequestsPerSecond::           'reqps',                        // Requests per second
+    ReadsPerSecond::              'rps',                          // Reads per second
+    WritesPerSecond::             'wps',                          // Writes per second
+    IOPerSecond::                 'iops',                         // I/O ops per second
+    EventsPerSecond::             'eps',                          // Events per second
+    MessagesPerSecond::           'mps',                          // Messages per second
+    RecordsPerSecond::            'recps',                        // Records per second
+    RowsPerSecond::               'rowsps',                       // Rows per second
+
+    CountsPerMinute::             'cpm',                          // Counts per minute
+    OpsPerMinute::                'opm',                          // Operations per minute
+    RequestsPerMinute::           'reqpm',                        // Requests per minute
+    ReadsPerMinute::              'rpm',                          // Reads per minute
+    WritesPerMinute::             'wpm',                          // Writes per minute
+    EventsPerMinute::             'epm',                          // Events per minute
+    MessagesPerMinute::           'mpm',                          // Messages per minute
+    RecordsPerMinute::            'recpm',                        // Records per minute
+    RowsPerMinute::               'rowspm',                       // Rows per minute
+
+    ////////////////////////////////////////////////
+    // Boolean
+    TrueFalse::                   'bool',                         // True / False
+    YesNo::                       'bool_yes_no',                  // Yes / No
+    OnOff::                       'bool_on_off',                  // On / Off
+  }
 }

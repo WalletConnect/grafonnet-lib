@@ -21,7 +21,7 @@ local defaults        = import '../../../../defaults.libsonnet';
         { value: 50, color: defaults.values.colors.critical },
       ]
     )
-    .withUnit(grafana.fieldConfig.units.Percent)
+    .withUnit(grafana.common.units.Percent)
     .withSoftLimit(
       axisSoftMin = 0,
       axisSoftMax = 100,

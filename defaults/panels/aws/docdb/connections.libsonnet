@@ -15,7 +15,7 @@ local defaults        = import '../../../../defaults.libsonnet';
   )
   .configure(
     defaults.configuration.timeseries
-    .withUnit(grafana.fieldConfig.units.CountsPerMinute)
+    .withUnit(grafana.common.units.CountsPerMinute)
   )
   .addTarget(grafana.targets.cloudwatch(
     alias         = 'Connections',
