@@ -82,8 +82,8 @@
 
 
       // Alerts
-      setAlert(alert):: self {
+      setAlert(environment, alert):: if environment == "prod" then self {
         alert: alert
-      },
+      } else self,
     },
 }

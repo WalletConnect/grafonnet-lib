@@ -20,13 +20,16 @@ local refid_Mem_Max   = '%s_Max' % defaults.values.refid.mem;
 
   .configure(defaults.configuration.timeseries_resource)
 
-  .setAlert(defaults.alerts.memory(
+  .setAlert(
+    environment,
+    defaults.alerts.memory(
       namespace     = namespace,
       env           = environment,
       title         = "%s - %s"   % [environment, title],
       notifications = notifications,
       priority      = priority,
-  ))
+    )
+  )
 
   .addTarget(grafana.targets.cloudwatch(
     alias       = 'Memory (Max)',

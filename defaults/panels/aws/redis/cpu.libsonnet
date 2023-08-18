@@ -21,13 +21,16 @@ local refid_EngineCPU_Max = '%s_Engine_Max' % defaults.values.refid.mem;
 
   .configure(defaults.configuration.timeseries_resource)
 
-  .setAlert(defaults.alerts.cpu(
+  .setAlert(
+    environment,
+    defaults.alerts.cpu(
       namespace     = namespace,
       env           = environment,
       title         = title,
       notifications = notifications,
       priority      = priority,
-  ))
+    )
+  )
 
   .addTarget(grafana.targets.cloudwatch(
     alias       = 'Host CPU',

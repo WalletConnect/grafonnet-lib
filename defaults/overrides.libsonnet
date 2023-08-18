@@ -23,7 +23,7 @@ local defaults        = import '../defaults/values.libsonnet';
       color = defaults.colors.memory_alt
     )),
 
-  cpu_memory(cfg, refid_cpu = defaults.refid.cpu, refid_mem = defaults.refid.mem):: cfg
+  cpu_memory(cfg, refid = defaults.refid.cpu, refid_mem = defaults.refid.mem):: cfg
     .addOverride(grafana.override.newColorOverride(
       name = '%s_Avg' % refid,
       color = defaults.colors.cpu

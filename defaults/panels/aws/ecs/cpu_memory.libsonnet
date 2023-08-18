@@ -37,27 +37,30 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     defaults.configuration.timeseries_resource
   )
 
-  .setAlert(defaults.alerts.cpu_mem(
-    namespace     = namespace,
-    env           = environment,
-    title         = title,
-    notifications = notifications,
-    priority      = priority,
-    period        = period,
-    frequency     = frequency,
-    cpu           = {
-      refid       : cpu_refid,
-      limit       : cpu_limit,
-      reducer     : cpu_reducer,
-      timeStart   : timeStart,
-    },
-    memory        = {
-      refid       : memory_refid,
-      limit       : memory_limit,
-      reducer     : memory_reducer,
-      timeStart   : timeStart,
-    },
-  ))
+  .setAlert(
+    environment,
+    defaults.alerts.cpu_mem(
+      namespace     = namespace,
+      env           = environment,
+      title         = title,
+      notifications = notifications,
+      priority      = priority,
+      period        = period,
+      frequency     = frequency,
+      cpu           = {
+        refid       : cpu_refid,
+        limit       : cpu_limit,
+        reducer     : cpu_reducer,
+        timeStart   : timeStart,
+      },
+      memory        = {
+        refid       : memory_refid,
+        limit       : memory_limit,
+        reducer     : memory_reducer,
+        timeStart   : timeStart,
+      },
+    )
+  )
 
   .addTarget(grafana.targets.cloudwatch(
     alias         = 'CPU (Max)',
@@ -65,7 +68,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,
@@ -78,7 +81,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.CPUUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,
@@ -92,7 +95,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,
@@ -105,7 +108,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     namespace     = grafana.target.cloudwatch.namespace.ECS,
     metricName    = grafana.target.cloudwatch.metrics.ecs.MemoryUtilization,
     dimensions    = {
-      ServiceName: service_name
+      ServiceName: service_name,
       [if cluster_name != null then 'ClusterName']: cluster_name,
     },
     matchExact    = matchExact,

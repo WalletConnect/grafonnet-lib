@@ -30,7 +30,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
         { value: mem_threshold, color: defaults.values.colors.ok },
       ]
     )
-    .withUnit(grafana.fieldConfig.units.Kibibytes)
+    .withUnit(grafana.fieldConfig.units.DecBytes)
     .addOverride(grafana.override.newColorOverride(refid_Mem_Min, defaults.values.colors.memory_alt))
     .addOverride(grafana.override.newColorOverride(refid_Mem_Avg, defaults.values.colors.memory))
     .withSoftLimit(
@@ -44,6 +44,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
   )
 
   .setAlert(
+    environment,
     grafana.alert.new(
       namespace     = namespace,
       name          = '%s - DocumentDB - Available Memory alert'              % environment,

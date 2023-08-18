@@ -34,6 +34,7 @@ local refid_Ops_Max   = 'Ops_Max';
   )
 
   .setAlert(
+    environment,
     grafana.alert.new(
       namespace     = namespace,
       name          = "%s - DocumentDB - LowMem Num Operations Throttled Alert" % environment,
