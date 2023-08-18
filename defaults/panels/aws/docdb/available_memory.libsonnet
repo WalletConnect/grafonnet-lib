@@ -44,6 +44,7 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
   )
 
   .setAlert(
+    environment,
     grafana.alert.new(
       namespace     = namespace,
       name          = '%s - DocumentDB - Available Memory alert'              % environment,

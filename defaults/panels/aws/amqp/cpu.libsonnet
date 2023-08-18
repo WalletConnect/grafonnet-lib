@@ -26,15 +26,18 @@ local refid_CPU_Avg   = '%s_Avg' % defaults.values.refid.cpu;
     defaults.configuration.timeseries_resource
   )
 
-  .setAlert(defaults.alerts.cpu(
-    namespace     = namespace,
-    env           = environment,
-    title         = title,
-    notifications = notifications,
-    priority      = priority,
-    limit         = limit,
-    reducer       = reducer,
-  ))
+  .setAlert(
+    environment,
+    defaults.alerts.cpu(
+      namespace     = namespace,
+      env           = environment,
+      title         = title,
+      notifications = notifications,
+      priority      = priority,
+      limit         = limit,
+      reducer       = reducer,
+    )
+  )
 
   .addTarget(grafana.targets.cloudwatch(
     alias       = "CPU (Max)",

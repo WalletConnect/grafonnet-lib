@@ -32,19 +32,22 @@ local refid_Mem_Avg   = '%s_Avg' % defaults.values.refid.mem;
     defaults.configuration.timeseries_resource
   )
 
-  .setAlert(defaults.alerts.memory(
-    namespace     = namespace,
-    env           = environment,
-    title         = title,
-    notifications = notifications,
-    priority      = priority,
-    timeStart     = timeStart,
-    period        = period,
-    frequency     = frequency,
-    refid         = refid,
-    limit         = limit,
-    reducer       = reducer,
-  ))
+  .setAlert(
+    environment,
+    defaults.alerts.memory(
+      namespace     = namespace,
+      env           = environment,
+      title         = title,
+      notifications = notifications,
+      priority      = priority,
+      timeStart     = timeStart,
+      period        = period,
+      frequency     = frequency,
+      refid         = refid,
+      limit         = limit,
+      reducer       = reducer,
+    )
+  )
 
   .addTarget(grafana.targets.cloudwatch(
     alias         = 'Memory (Max)',

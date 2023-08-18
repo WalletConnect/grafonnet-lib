@@ -34,28 +34,31 @@ local colors = {
     .addOverride(grafana.override.newColorOverride(refids.cpu_reader_max, colors.cpu_reader_max))
     .addOverride(grafana.override.newColorOverride(refids.cpu_reader_avg, colors.cpu_reader_avg))
   )
-  .setAlert(grafana.alert.new(
-    namespace     = namespace,
-    name          = "%s - DocumentDB - CPU alert" % environment,
-    message       = "%s - DocumentDB - CPU alert" % environment,
-    notifications = notifications,
-    conditions  = [
-      grafana.alertCondition.new(
-        evaluatorParams = [ defaults.values.resource.thresholds.critical ],
-        evaluatorType   = grafana.alertCondition.evaluators.Above,
-        operatorType    = grafana.alertCondition.operators.Or,
-        queryRefId      = refids.cpu_writer_max,
-        reducerType     = grafana.alertCondition.reducers.Avg,
-      ),
-      grafana.alertCondition.new(
-        evaluatorParams = [ defaults.values.resource.thresholds.critical ],
-        evaluatorType   = grafana.alertCondition.evaluators.Above,
-        operatorType    = grafana.alertCondition.operators.Or,
-        queryRefId      = refids.cpu_reader_max,
-        reducerType     = grafana.alertCondition.reducers.Avg,
-      ),
-    ]
-  ))
+  .setAlert(
+    environment,
+    grafana.alert.new(
+      namespace     = namespace,
+      name          = "%s - DocumentDB - CPU alert" % environment,
+      message       = "%s - DocumentDB - CPU alert" % environment,
+      notifications = notifications,
+      conditions  = [
+        grafana.alertCondition.new(
+            evaluatorParams = [ defaults.values.resource.thresholds.critical ],
+            evaluatorType   = grafana.alertCondition.evaluators.Above,
+            operatorType    = grafana.alertCondition.operators.Or,
+            queryRefId      = refids.cpu_writer_max,
+            reducerType     = grafana.alertCondition.reducers.Avg,
+        ),
+        grafana.alertCondition.new(
+            evaluatorParams = [ defaults.values.resource.thresholds.critical ],
+            evaluatorType   = grafana.alertCondition.evaluators.Above,
+            operatorType    = grafana.alertCondition.operators.Or,
+            queryRefId      = refids.cpu_reader_max,
+            reducerType     = grafana.alertCondition.reducers.Avg,
+        ),
+      ]
+    )
+  )
   .addTarget(grafana.targets.cloudwatch(
     alias       = 'CPU Writer (Max)',
     datasource  = datasource,

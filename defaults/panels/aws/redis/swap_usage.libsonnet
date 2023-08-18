@@ -23,6 +23,7 @@ local refid_Pressure        = 'Pressure';
   .configure(defaults.configuration.timeseries)
 
   .setAlert(
+    environment,
     grafana.alert.new(
       namespace     = namespace,
       name          = "%s - %s - Swap Usage alert"    % [grafana.utils.strings.capitalize(environment), title],
