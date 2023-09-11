@@ -32,7 +32,7 @@ local alert_message(target, message, env, title, limit) =
     limit         = values.alerts.mem.limit,
     reducer       = values.alerts.mem.reducer,
     timeStart     = values.alerts.timeStart,
-    period        = values.alerts.period,
+    period        = values.alerts.cpu.period,
     frequency     = values.alerts.frequency,
   ):: grafana.alert.new(
     namespace     = namespace,

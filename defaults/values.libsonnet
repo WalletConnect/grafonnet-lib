@@ -19,6 +19,7 @@ local units   = import '../utils/units.libsonnet';
       reducer::   grafana.alertCondition.reducers.Avg,
     },
     cpu:: {
+      period::    '25m', // Allow time for autoscaling
       limit::     70,   // 70%
       refid::     $.refid.cpu,
       reducer::   grafana.alertCondition.reducers.Avg,
