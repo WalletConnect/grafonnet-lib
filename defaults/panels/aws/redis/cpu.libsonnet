@@ -29,6 +29,7 @@ local refid_EngineCPU_Max = '%s_Engine_Max' % defaults.values.refid.mem;
       title         = title,
       notifications = notifications,
       priority      = priority,
+      reducer       = grafana.alertCondition.reducers.Max,
     )
   )
 

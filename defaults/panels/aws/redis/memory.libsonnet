@@ -28,6 +28,7 @@ local refid_Mem_Max   = '%s_Max' % defaults.values.refid.mem;
       title         = "%s - %s"   % [environment, title],
       notifications = notifications,
       priority      = priority,
+      reducer       = grafana.alertCondition.reducers.Max,
     )
   )
 
