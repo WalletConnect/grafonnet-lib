@@ -8,10 +8,10 @@ local refid_Pressure        = 'Pressure';
 {
   title:: 'Redis Swap Usage',
   panel(
+    datasource,
     namespace,
     environment,
     notifications,
-    datasource,
     cluster_id,
     title         = $.title,
     priority      = null,

@@ -6,10 +6,10 @@ local refid_Mem_Max   = '%s_Max' % defaults.values.refid.mem;
 {
   title:: 'Redis Memory',
   panel(
+    datasource,
     namespace,
     environment,
     notifications,
-    datasource,
     cluster_id,
     title         = $.title,
     priority      = null,
