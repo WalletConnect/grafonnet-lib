@@ -87,5 +87,9 @@
       transformations+: [transformation],
     },
     addTransformations(transformations):: std.foldl(function(p, t) p.addTransformation(t), transformations, self),
+    configure(configuration):: self {
+      fieldConfig+: configuration.fieldConfig,
+      options+:     configuration.options,
+    },
   },
 }
