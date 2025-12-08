@@ -1,3 +1,14 @@
+/**
+ * DEPRECATED: Legacy Panel-Based Alert Presets
+ *
+ * This module is deprecated as of Grafana 10+.
+ * Panel-based alerts have been replaced by Unified Alerting.
+ *
+ * For new alert rules, use alertRule.libsonnet and alerts.jsonnet instead.
+ * This file is kept for backwards compatibility reference only.
+ *
+ * @deprecated Use alertRule.libsonnet for Grafana 10+ compatible alerts
+ */
 local grafana         = import '../grafana.libsonnet';
 local strings         = import '../utils/strings.libsonnet';
 local units           = import '../utils/units.libsonnet';

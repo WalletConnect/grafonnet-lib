@@ -81,9 +81,9 @@
       addLinks(links):: std.foldl(function(p, l) p.addLink(l), links, self),
 
 
-      // Alerts
-      setAlert(environment, alert):: if environment == "prod" then self {
-        alert: alert
-      } else self,
+      // Legacy Alerts (deprecated in Grafana 10+)
+      // Alerts are now managed via Unified Alerting in alerts.jsonnet
+      // This method is kept for backwards compatibility but does nothing
+      setAlert(environment, alert):: self,
     },
 }

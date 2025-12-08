@@ -1,6 +1,11 @@
 {
+  // Legacy alert format - deprecated in Grafana 10+
+  // Kept for backwards compatibility reference only
   alert::                   import 'alert.libsonnet',
   alertCondition::          import 'alert_condition.libsonnet',
+
+  // Grafana Unified Alerting - v10.4+ compatible
+  alertRule::               import 'alert_rule.libsonnet',
   annotation::              import 'annotation.libsonnet',
   common::                  import 'common.libsonnet',
   dashboard::               import 'dashboard.libsonnet',
