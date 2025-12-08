@@ -1,21 +1,16 @@
 {
   /**
-   * Returns a new condition of alert of graph panel.
-   * Currently the only condition type that exists is a Query condition
-   * that allows to specify a query letter, time range and an aggregation function.
+   * DEPRECATED: Legacy Panel-Based Alerts
    *
-   * @name alertCondition.new
+   * This module is deprecated as of Grafana 10+.
+   * Panel-based alerts have been replaced by Unified Alerting.
    *
-   * @param evaluatorParams Value of threshold
-   * @param evaluatorType Type of threshold
-   * @param operatorType Operator between conditions
-   * @param queryRefId The letter defines what query to execute from the Metrics tab
-   * @param queryTimeStart Begging of time range
-   * @param queryTimeEnd End of time range
-   * @param reducerParams Params of an aggregation function
-   * @param reducerType Name of an aggregation function
+   * For new alert rules, use alertRule.libsonnet instead.
+   * See alerts.jsonnet for examples of the new format.
    *
-   * @return A json that represents a condition of alert
+   * This file is kept for backwards compatibility reference only.
+   *
+   * @deprecated Use alertRule.libsonnet for Grafana 10+ compatible alerts
    */
   new(
     namespace,
