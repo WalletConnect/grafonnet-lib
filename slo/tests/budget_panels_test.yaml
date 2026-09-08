@@ -1,0 +1,127 @@
+# promtool tests for the two error-budget PANELS (panels/slo/budget.libsonnet), which
+# are alerting artifacts even though nothing alerts off them: they are what an on-call
+# reads to decide whether a burn is close to firing, and a panel that disagreed with the
+# rule about the size of the budget would read healthy while the alert went off.
+#
+# The rules under test are synthesised in slo_rules.jsonnet from the same helpers the
+# panels and the alerts both call — `burn_multiple`, `bad_count`, `budget_events`,
+# `budget_pct`, `budget_remaining_pct` — so a case cannot pass by agreeing with a copy of
+# the mistake.
+#
+# FIXTURE: `budget-probe`, two plain counters at a 99% objective, so the arithmetic under
+# test is not tangled up with the real SLIs' label matching. `budget_probe_total` runs at
+# 12/min, which projects to 518,400 monthly events and therefore a budget of exactly
+# 5,184 bad events. The fast tier's 1h share of that is 2% = 103.68 bad events, and its
+# burn line sits at 14.4x. Round numbers on purpose: every expectation below is checkable
+# by hand from those two.
+#
+# `budget_probe_bad_total` is a SEPARATE metric from `budget_probe_total`, so changing
+# the bad rate does not move the budget. That is what lets each case vary one number.
+rule_files:
+  - panel_rules.generated.json
+
+evaluation_interval: 1m
+
+tests:
+  # OVER THE LINE. 180 bad events in the hour: the panel's multiple reads
+  # 180 / 5184 * 720 = 25x, over the 14.4x line, and the tier's long clause reads
+  # 100 * 180 / 5184 = 3.47%, over its 2% share.
+  #
+  # BOTH must fire, and that is the entire point: the two are the same inequality
+  # divided through by `w/30d * 100`, so the line drawn at 14.4x on the chart means
+  # "this SLO's long-window clause is over budget" and nothing else. Get the factor in
+  # `burn_multiple` wrong and one fires without the other — a chart whose tier lines sit
+  # in the wrong place, which is not falsifiable by eye.
+  - name: panel multiple and long clause agree when over budget
+    interval: 1m
+    input_series:
+      - series: 'budget_probe_total'
+        values: '0+12x216'
+      - series: 'budget_probe_bad_total'
+        values: '0+3x216'
+    alert_rule_test:
+      - eval_time: 200m
+        alertname: PANEL_BURN_fast
+        exp_alerts:
+          - exp_labels:
+              sli: budget-probe
+              objective: test fixture for the budget panels
+      # No `sli` / `objective` labels on this one: `LONG_CLAUSE_*` is built from the
+      # bare inner clause of `burn_rate.condition`, BEFORE `labelled()` wraps the union
+      # and tags it. The shipping alert is the wrapped form; what is under test here is
+      # the arithmetic inside, so the fixture deliberately stops short of the wrapper.
+      - eval_time: 200m
+        alertname: LONG_CLAUSE_fast
+        exp_alerts:
+          - exp_labels: {}
+
+  # UNDER THE LINE. 60 bad events in the hour: 8.33x on the chart, 1.16% of the budget
+  # in the rule. Neither may fire — the mirror of the case above, so the identity is
+  # pinned in both directions rather than only where it is generous.
+  - name: panel multiple and long clause agree when under budget
+    interval: 1m
+    input_series:
+      - series: 'budget_probe_total'
+        values: '0+12x216'
+      - series: 'budget_probe_bad_total'
+        values: '0+1x216'
+    alert_rule_test:
+      - eval_time: 200m
+        alertname: PANEL_BURN_fast
+        exp_alerts: []
+      - eval_time: 200m
+        alertname: LONG_CLAUSE_fast
+        exp_alerts: []
+
+  # EXACTLY SPENT. 5,184 bad events over the trailing 30 days against a 5,184-event
+  # budget, so `SLO error budget remaining` must read ~0%.
+  #
+  # Asserted by MAGNITUDE, not sign, and that is what makes it a test. A sign-only
+  # assertion survives the numerator and denominator spanning different windows: shrink
+  # `budget_remaining_pct`'s numerator from 30d to 1h and the sign is still right while
+  # the bar reads ~99% remaining forever — "runway full" while the alert fires, the worst
+  # reading this panel could give. Pinning the value near zero pins the window, the
+  # factor and the sign at once.
+  - name: budget remaining reads zero when the budget is exactly spent
+    interval: 1m
+    input_series:
+      - series: 'budget_probe_total'
+        values: '0+12x216'
+      - series: 'budget_probe_bad_total'
+        values: '0+24x216'
+    alert_rule_test:
+      - eval_time: 216m
+        alertname: PANEL_REMAINING_AT_ZERO_fast
+        exp_alerts:
+          - exp_labels:
+              sli: budget-probe
+              objective: test fixture for the budget panels
+      - eval_time: 216m
+        alertname: PANEL_REMAINING_AT_MINUS_100_fast
+        exp_alerts: []
+
+  # TWICE SPENT — 10,368 bad events against the same 5,184-event budget, so the panel
+  # must read ~-100%.
+  #
+  # Negative is a REAL reading here, not a defect to clamp away: it says the objective
+  # is being missed outright and by how much. The bar is scaled 0-100 and empties, and
+  # it is the NUMBER beside it that carries the overspend, which is why
+  # `budget_remaining_pct` deliberately does not clamp. This case is what would fail if
+  # someone "fixed" the negative values in the query instead of in the visualisation.
+  - name: budget remaining goes negative when the budget is overspent
+    interval: 1m
+    input_series:
+      - series: 'budget_probe_total'
+        values: '0+12x216'
+      - series: 'budget_probe_bad_total'
+        values: '0+48x216'
+    alert_rule_test:
+      - eval_time: 216m
+        alertname: PANEL_REMAINING_AT_MINUS_100_fast
+        exp_alerts:
+          - exp_labels:
+              sli: budget-probe
+              objective: test fixture for the budget panels
+      - eval_time: 216m
+        alertname: PANEL_REMAINING_AT_ZERO_fast
+        exp_alerts: []

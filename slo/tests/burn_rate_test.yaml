@@ -1,0 +1,227 @@
+# promtool tests for the FAST burn tier (14.4x over 1h + 5m).
+#
+# Run by `just tf-test-alerts`, which renders slo_rules.jsonnet first. The rules under
+# test are the shipping PromQL — slo_rules.jsonnet imports lib/burn_rate.libsonnet and
+# panels/slo/slis.libsonnet rather than restating them, so a case cannot pass by
+# agreeing with a copy of the mistake.
+#
+# WHAT EACH CASE PINS is stated on the case, because the arithmetic is not readable off
+# the numbers. Every case here was MUTATION-CHECKED while being written: each clause,
+# window and threshold was broken in turn to confirm at least one case fails. A case
+# that passes with the guard removed is testing nothing, and two drafts of this file had
+# exactly that problem (noted inline where it applied).
+#
+# The fast tier's thresholds, for reading the cases:
+#   long  (1h): 2% of the 30-day budget
+#   short (5m): 0.1666667% of it
+#   floor:      at least 2 bad events in the long window
+# and the budget itself is `(1 - objective) x max(events[30d], events[1d]*30,
+# events[1h]*720)` — so on a young series like every fixture here, the 1h projection is
+# what sizes it.
+#
+# Series notation: `0+60x200` is a counter rising 60 per sample for 200 samples, i.e.
+# 60/min at `interval: 1m`.
+rule_files:
+  - rules_fast.generated.json
+
+evaluation_interval: 1m
+
+tests:
+  # A 99% SLI failing 16.7% of requests on one route: 720 bad of 4320 in the hour.
+  # Budget is 1% of the projected 31,104 monthly events = 311; the hour's allowance is
+  # 2% of that = 6.2 bad events, and 720 blows past it. In burn-rate terms 16.7% / 1% =
+  # 16.7x, comfortably over 14.4x.
+  #
+  # The point of this case is the ALERT INSTANCE: one rule, one instance, carrying the
+  # aggregation label of the dimension that is burning. `/quiet` is deliberately healthy
+  # in the same test and must not appear.
+  - name: fast burn fires for a 99% SLI at 16.7% failure
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/busy"}'
+        values: '0+60x200'
+      - series: 'fixture_route_bad_total{route="/busy"}'
+        values: '0+12x200'
+      - series: 'fixture_route_good_total{route="/quiet"}'
+        values: '0+60x200'
+    alert_rule_test:
+      - eval_time: 180m
+        alertname: SLO_fast
+        exp_alerts:
+          - exp_labels:
+              sli: by-route
+              objective: '99% of requests succeed, per route'
+              route: '/busy'
+
+  # 5% failure against a 99% objective is a 5x burn — a real, sustained SLO miss that the SLOW
+  # and BUDGET tiers should catch and this one must not. 180 bad in the hour against a
+  # 544-event allowance.
+  #
+  # This is the case that fails if the long-window threshold is loosened, and the reason
+  # `2%` is not a number anyone should adjust by feel.
+  - name: fast burn stays silent at 5% failure
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/busy"}'
+        values: '0+60x200'
+      - series: 'fixture_route_bad_total{route="/busy"}'
+        values: '0+3x200'
+    alert_rule_test:
+      - eval_time: 180m
+        alertname: SLO_fast
+        exp_alerts: []
+
+  # BOTH WINDOWS ARE REQUIRED, and one input drives both halves of that. A guaranteed
+  # route serving 60/min takes a 100/min failure spike from t=101 to t=141.
+  #
+  # At 105m the spike is 4 minutes old: the 5m window is hot (1.39% of budget, over the
+  # 0.1667% limit) and the 1h window has not caught up (1.39%, under the 2% limit). The
+  # long clause is what keeps this quiet — delete it and this assertion fires. That is
+  # the difference between a burn-rate alert and a threshold alert: four minutes of
+  # failures is not yet evidence about the month.
+  #
+  # At 180m the spike ended 39 minutes ago: the 1h window is still hot (5.12%, over 2%)
+  # while the 5m window is clean. The short clause is what clears this — delete it and
+  # this assertion fires, and in production the alert would keep firing for the rest of
+  # the hour after the incident was over. That is the flapping-adjacent failure the
+  # short window exists to prevent, and it is why these rules need no long `for:`
+  # debounce: the short window IS the debounce.
+  #
+  # Neither eval time is redundant. The first pins the long clause, the second pins the
+  # short one, and a draft of this file had only the firing cases — under which removing
+  # the short-window clause entirely left the suite green.
+  - name: fast burn needs both the long and the short window
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/busy"}'
+        values: '0+60x200'
+      - series: 'fixture_route_bad_total{route="/busy"}'
+        values: '0+0x100 0+100x40 4000+0x59'
+    alert_rule_test:
+      # Short window hot, long window not yet: the long clause holds it.
+      - eval_time: 105m
+        alertname: SLO_fast
+        exp_alerts: []
+      # Long window still hot, short window clean: the short clause clears it.
+      - eval_time: 180m
+        alertname: SLO_fast
+        exp_alerts: []
+
+  # SENSITIVE AT LOW VOLUME — the property an absolute-count threshold cannot have. This
+  # route serves 2 requests/min, then goes completely dark: `good` stops rising and every
+  # request fails.
+  #
+  # A rule needing, say, 11 failures per 15 minutes would let a dimension this quiet be
+  # 100% broken for hours without reaching it. Here the budget is sized from its OWN
+  # traffic (849 monthly events -> 8.5 bad events allowed, 0.17 of them per hour), so
+  # 118 failures is a 13.9% budget spend and fires.
+  #
+  # A traffic-based noise floor is what would break this. An earlier design gated on
+  # requests-per-hour, which at any threshold high enough to quiet a busy dimension would
+  # have silenced this outage entirely — the reasoning recorded on `min_bad_events`.
+  - name: fast burn fires for a total outage on a 2-request-per-minute dimension
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/quiet"}'
+        values: '0+2x100 200+0x60'
+      - series: 'fixture_route_bad_total{route="/quiet"}'
+        values: '0+0x100 0+2x60'
+    alert_rule_test:
+      - eval_time: 160m
+        alertname: SLO_fast
+        exp_alerts:
+          - exp_labels:
+              sli: by-route
+              objective: '99% of requests succeed, per route'
+              route: '/quiet'
+
+  # THE NOISE FLOOR, both sides of it. This route serves 5 requests an hour, so its
+  # whole monthly budget is ~44 bad events and the fast tier's hourly allowance is 0.88
+  # of one request. A SINGLE failure therefore clears both ratio clauses — 2.28% of the
+  # budget against a 2% limit — and is still not evidence of anything.
+  #
+  # At 103m exactly one failure has happened: both ratios pass, the floor blocks it.
+  # At 115m a second has: the floor passes and the alert fires.
+  #
+  # Delete the `>= 2` clause and the 103m assertion fails. That is the whole test; the
+  # 115m assertion is there to prove the floor is a floor and not an off switch.
+  - name: noise floor blocks one stray failure and allows two
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/rare"}'
+        values: '0+0x11 1+0x11 2+0x11 3+0x11 4+0x11 5+0x11 6+0x11 7+0x11 8+0x11 9+0x11 10+0x11 11+0x11'
+      - series: 'fixture_route_bad_total{route="/rare"}'
+        values: '0+0x100 1+0x10 2+0x30'
+    alert_rule_test:
+      - eval_time: 103m
+        alertname: SLO_fast
+        exp_alerts: []
+      - eval_time: 115m
+        alertname: SLO_fast
+        exp_alerts:
+          - exp_labels:
+              sli: by-route
+              objective: '99% of requests succeed, per route'
+              route: '/rare'
+
+  # The 75% `lenient` fixture in total outage. It must raise NOTHING here, at any
+  # severity, because a 25% error budget cannot be over-spent inside an hour — even a
+  # 100% outage spends only 0.56% of it against this tier's 2% threshold.
+  #
+  # That is arithmetic, not policy, and it is why the fixture declares
+  # `tiers: ['budget']`: listing the fast tier would render a rule that looks like
+  # coverage and can never fire. `burn_rate.tier_feasible` fails the render if the two
+  # ever disagree, so this case guards the OTHER direction — that the opt-out did not
+  # also remove it from the budget tier. That half is tier_windows_test.yaml.
+  - name: a loose objective never reaches the fast tier
+    interval: 1m
+    input_series:
+      - series: 'fixture_lenient_good_total{route="/besteffort"}'
+        values: '0+2x100 200+0x100'
+      - series: 'fixture_lenient_bad_total{route="/besteffort"}'
+        values: '0+0x100 0+60x100'
+    alert_rule_test:
+      - eval_time: 190m
+        alertname: SLO_fast
+        exp_alerts: []
+
+  # COMPOUND bad() MUST NOT MIS-PARSE. `splice-probe` is a fixture whose `bad()` is an
+  # unparenthesised `sum(a) - sum(b)` (slo_rules.jsonnet), which is the shape
+  # `burn_rate.bad_count` exists to wrap. Spliced bare into `100 * %s / %s` it parses as
+  # `(100 * sum(a)) - (sum(b) / budget)` — not a ratio at all, but ~3.6 million, which
+  # exceeds every threshold at every objective, so the tier fires permanently and
+  # silently for every SLI in the rule.
+  #
+  # The fixture is driven BUSY BUT HEALTHY: 36,000 requests in the hour, 60 of them bad,
+  # which is 0.023% of a 2% allowance. Correct parse -> no alert. Mis-parse -> alert.
+  #
+  # The 60 bad events are load-bearing, and this is the mistake the first draft made: at
+  # zero badness the noise floor (`sum(a) - sum(b) >= 2`) blocks the mis-parse too, and
+  # the case passes with the parens removed.
+  - name: compound bad() stays a ratio
+    interval: 1m
+    input_series:
+      - series: 'splice_total'
+        values: '0+600x200'
+      - series: 'splice_good_total'
+        values: '0+600x140 84000+599x60'
+    alert_rule_test:
+      - eval_time: 200m
+        alertname: SLO_fast
+        exp_alerts: []
+
+  # An idle service raises nothing. No `or vector(0)` anywhere in a `bad()` means a
+  # window with no failures yields no series, so the condition is empty rather than
+  # zero-valued — which is also what keeps these rules off Grafana's alert-instance
+  # quota on a widely-fanned SLI.
+  - name: healthy traffic raises nothing
+    interval: 1m
+    input_series:
+      - series: 'fixture_route_good_total{route="/busy"}'
+        values: '0+60x200'
+      - series: 'fixture_total'
+        values: '0+100x200'
+    alert_rule_test:
+      - eval_time: 180m
+        alertname: SLO_fast
+        exp_alerts: []
