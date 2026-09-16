@@ -1,0 +1,176 @@
+# promtool tests for the SLOW (6x / 6h+30m) and BUDGET (1x / 3d+6h) burn tiers, and for
+# the two places the long windows have their own failure modes: the sparse-denominator
+# hazard in `max_of` and the 30-day term in `monthly_events`.
+#
+# `evaluation_interval: 20m` is the speed lever, and it is deliberate. promtool ignores
+# each rule group's own interval and steps at the interval declared here, re-evaluating
+# every rule in `rule_files` at every step — and these cases span three and a half days.
+# At 1m the 3-day cases alone would step 5,000 times over three multi-dimensional burn
+# expressions; measured, 10m took 45s and 20m takes 19s. Nothing under test here can
+# move inside twenty minutes: the shortest window in this file is the slow tier's 30m,
+# and every `eval_time` below is a multiple of 20m because promtool only evaluates on
+# the step. Raising it further would start to skip past the 30m window.
+#
+# All three tiers are loaded, not just the slow and budget ones, because half of what
+# these cases assert is that the FAST tier stays quiet — a 7.7% failure rate is a real
+# SLO miss and must not page.
+#
+# Thresholds, for reading the cases:
+#   slow   long  (6h): 5%     short (30m): 0.4166667%
+#   budget long  (3d): 10%    short (6h):  0.8333333%
+# against a budget of `(1 - objective) x max(events[30d], events[1d]*30, events[1h]*720)`.
+#
+# At `interval: 10m`, `0+600x45` is 600 per ten minutes — 60/min.
+rule_files:
+  - rules_all.generated.json
+
+evaluation_interval: 20m
+
+tests:
+  # Healthy traffic on a 99% SLI: no tier raises anything. The baseline that
+  # makes the firing cases mean something.
+  - name: all tiers quiet on healthy traffic
+    interval: 10m
+    input_series:
+      - series: 'fixture_route_good_total{route="/slowburn"}'
+        values: '0+600x45'
+    alert_rule_test:
+      - eval_time: 420m
+        alertname: SLO_fast
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: SLO_slow
+        exp_alerts: []
+      - eval_time: 420m
+        alertname: SLO_budget
+        exp_alerts: []
+
+  # 7.7% failure sustained for seven hours against a 99% objective — a 7.7x burn, which sits
+  # between the 6x and 14.4x tiers. Exactly one tier may fire.
+  #
+  # The slow tier: 1800 bad in the 6h window is 6.41% of the budget against its 5%
+  # limit, and 150 in the last 30m is 0.534% against 0.4167%.
+  # The fast tier: 300 bad in the last hour is 1.07% against its 2% limit, so it stays
+  # quiet — which is the tier separation working, not a gap in coverage.
+  # The budget tier: 2100 bad over the (test-truncated) 3d window is 7.48% against 10%.
+  #
+  # This case is what fails if the slow tier's windows or burn factor are retuned
+  # without updating docs/operations/alerts.md, and it is the only case pinning that 6x
+  # sits strictly between "ignore" and "urgent".
+  - name: slow burn fires alone at 7.7% failure
+    interval: 10m
+    input_series:
+      - series: 'fixture_route_good_total{route="/slowburn"}'
+        values: '0+600x45'
+      - series: 'fixture_route_bad_total{route="/slowburn"}'
+        values: '0+50x45'
+    alert_rule_test:
+      - eval_time: 420m
+        alertname: SLO_slow
+        exp_alerts:
+          - exp_labels:
+              sli: by-route
+              objective: '99% of requests succeed, per route'
+              route: '/slowburn'
+      - eval_time: 420m
+        alertname: SLO_fast
+        exp_alerts: []
+
+  # The 75% `lenient` fixture in total outage for three and a half days. This is the
+  # other half of the opt-out asserted in burn_rate_test.yaml: the fast tier cannot see
+  # it, so the budget tier is the ONLY thing that can, and if `tiers: ['budget']` were
+  # wrong in the other direction it would have no coverage at all and nothing would say
+  # so.
+  #
+  # 259,200 bad over 3d against a 648,000-event budget is 40%, four times the 10% limit
+  # — and note what that took: a dimension that has served literally nothing for three
+  # days. A 25% error budget is that forgiving, which is what a deliberately lenient
+  # objective means, stated honestly.
+  #
+  # No `found` series exists at all here, deliberately. That is the real shape of a
+  # dimension whose backend has been failing since the last deploy — the counter's label
+  # set is only created when a request succeeds — and it is the shape that silently
+  # disarmed an earlier draft of `events()`, which summed the two counters with `+`
+  # instead of selecting both by `__name__` (see panels/slo/slis.libsonnet).
+  - name: budget tier fires for a loose objective in total outage
+    interval: 10m
+    input_series:
+      - series: 'fixture_lenient_bad_total{route="/besteffort"}'
+        values: '0+600x500'
+    alert_rule_test:
+      - eval_time: 4900m
+        alertname: SLO_budget
+        exp_alerts:
+          - exp_labels:
+              sli: lenient
+              objective: '75% of requests succeed (best effort)'
+              route: '/besteffort'
+      - eval_time: 4900m
+        alertname: SLO_slow
+        exp_alerts: []
+
+  # SPARSE DENOMINATOR — the `max_of` regression, and the reason that helper is not the
+  # obvious `(a > b) or b` fold.
+  #
+  # This dimension stopped exporting samples two hours before the evaluation, which is
+  # the normal state of a low-traffic dimension after a deploy. So the `events[1h]*720`
+  # projection has NO series for it, while `events[1d]*30` and `events[30d]` both do.
+  #
+  # With the fold, `>` is a filtering match: a label set missing from the right-hand
+  # operand is dropped, and `or` has nothing to restore it with, so the result collapses
+  # to only the label sets present in the SPARSEST input. The budget comes back empty,
+  # every clause divides by nothing, and the tier is silently disarmed for exactly the
+  # dimensions most likely to be broken. `max without (__estimate__) (label_replace(...))`
+  # unions instead, so a missing input is simply absent from the aggregation.
+  #
+  # Only the BUDGET tier can be caught by this — the bug needs a dimension inside the
+  # short window but outside the 1h estimate, and only its 6h short window is longer
+  # than an hour. Which is why this is the tier asserted, and why the case exists at all
+  # rather than the fix being left to the comment: a silent disarm is the worst failure
+  # mode available to an alert.
+  #
+  # `filler` extends the test past the series' last sample; promtool sizes a test by its
+  # longest series.
+  - name: budget tier survives a dimension whose series went idle
+    interval: 10m
+    input_series:
+      - series: 'fixture_route_good_total{route="/idle"}'
+        values: '0+600x30'
+      - series: 'fixture_route_bad_total{route="/idle"}'
+        values: '0+120x30'
+      - series: 'filler'
+        values: '1+0x60'
+    alert_rule_test:
+      - eval_time: 440m
+        alertname: SLO_budget
+        exp_alerts:
+          - exp_labels:
+              sli: by-route
+              objective: '99% of requests succeed, per route'
+              route: '/idle'
+
+  # THE 30-DAY TERM IS NOT REDUNDANT. `monthly_events` takes the largest of three
+  # projections, and it is tempting to read the 30d count as covered by the short
+  # projections scaled up. It is not, because traffic trends: this route served 600/min
+  # for its first day and 6/min ever since, which is an ordinary shape for a dimension
+  # whose main consumer moved on.
+  #
+  # The month really did see ~886,000 requests, so the 432 failures in the last three
+  # days are 4.9% of an 8,858-event budget — under the 10% limit, correctly quiet.
+  # Estimate the month from the last day instead and it reads 263,520, the budget shrinks
+  # to 2,635, and the same 432 failures become 16.4% — a false alert, on a dimension that is
+  # doing nothing wrong.
+  #
+  # Drop the `30d` entry from `monthly_events` and this assertion fires. The `1h` entry
+  # is pinned the other way round, by the young-series cases in slo_burn_rate_test.yaml.
+  - name: budget tier uses the 30-day count when traffic has declined
+    interval: 10m
+    input_series:
+      - series: 'fixture_route_good_total{route="/declining"}'
+        values: '0+6000x144 864000+60x356'
+      - series: 'fixture_route_bad_total{route="/declining"}'
+        values: '0+1x500'
+    alert_rule_test:
+      - eval_time: 5000m
+        alertname: SLO_budget
+        exp_alerts: []

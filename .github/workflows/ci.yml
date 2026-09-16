@@ -1,0 +1,54 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  slo:
+    name: SLO library tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v5
+
+      # go-jsonnet, NOT apt's `jsonnet`. The consumers of this library render it through
+      # Terraform's alxrem/jsonnet provider, which embeds google/go-jsonnet, so that is
+      # the implementation whose behaviour CI needs to predict. apt ships the C++ build,
+      # whose stdlib is written in Jsonnet and therefore consumes interpreter stack
+      # frames — it dies on "max stack frames exceeded" rendering a large dashboard that
+      # go-jsonnet handles with a max-stack of 200.
+      - name: Install go-jsonnet
+        env:
+          JSONNET_VERSION: 0.22.0
+        run: |
+          curl -sSL "https://github.com/google/go-jsonnet/releases/download/v${JSONNET_VERSION}/go-jsonnet_${JSONNET_VERSION}_linux_amd64.tar.gz" \
+            | sudo tar -xz -C /usr/local/bin jsonnet jsonnetfmt
+
+      - name: Install promtool
+        env:
+          PROM_VERSION: 3.1.0
+        run: |
+          curl -sSL "https://github.com/prometheus/prometheus/releases/download/v${PROM_VERSION}/prometheus-${PROM_VERSION}.linux-amd64.tar.gz" \
+            | sudo tar -xz --strip-components=1 -C /usr/local/bin "prometheus-${PROM_VERSION}.linux-amd64/promtool"
+
+      # Renders rule groups and both panels from fixture SLIs. This is where every assert
+      # in burn_rate.libsonnet fires — the tier/interval consistency checks, the
+      # objective-is-a-ratio check and the burn-tier feasibility check.
+      - name: Render smoke test
+        working-directory: slo/tests
+        run: jsonnet -o /dev/null smoke.jsonnet
+
+      - name: Evaluate SLO rules
+        working-directory: slo/tests
+        run: |
+          jsonnet -S -m . render_rules.jsonnet
+          promtool test rules burn_rate_test.yaml tier_windows_test.yaml budget_panels_test.yaml
+
+      # A green build that never evaluated a rule is worse than a red one.
+      - name: Assert the tools were real
+        run: |
+          jsonnet --version | grep -q 'Go implementation' \
+            || { echo "jsonnet is not the Go implementation: $(jsonnet --version)"; exit 1; }
+          command -v promtool >/dev/null || { echo 'promtool missing'; exit 1; }
