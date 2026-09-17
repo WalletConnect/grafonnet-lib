@@ -22,7 +22,7 @@
  *     name_prefix:    vars.envCapitalized,
  *     labels:         vars.labels,
  *     priority_label: 'og_priority',
- *     dimension_hint: 'Any chain_id label on this instance names the chain that is burning.',
+ *     dimension_template: '{{ if $labels.chain_id }} on chain {{ $labels.chain_id }}{{ end }}',
  *     dashboard_hint: "then that chain's row under Chain RPC Router.",
  *   })
  *
@@ -100,26 +100,37 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
       annotations = {
         // `$value` is the condition's value, which is the percent of the 30-day budget
         // spent inside the long window — see burnRate.condition.
-        summary: '%s - SLO {{ $labels.sli }} has spent {{ $value }}%% of its 30-day error budget in %s' % [
-          o.name_prefix,
-          tier.long,
-        ],
+        // WHAT and WHERE first, in both fields. A notification is usually read as a
+        // one-line title on a phone, so the burning dimension has to survive
+        // truncation — `dimension_template` puts it immediately after the SLI name
+        // rather than in a sentence two thirds of the way down.
+        // Shaped to stand alone as a NOTIFICATION TITLE, which is why it repeats the
+        // tier name already in the rule name: a contact point templated on
+        // `.CommonAnnotations.summary` renders this and nothing else, so it has to carry
+        // tier, indicator and dimension by itself. Numbers come last — they are the part
+        // a truncated title can afford to lose.
+        summary: '%(prefix)s - SLO %(tier)s: {{ $labels.sli }}%(dim)s — {{ printf "%%.1f" $value }}%% of 30-day budget in %(long)s (limit %(long_pct)s%%)' % {
+          prefix: o.name_prefix,
+          tier: tier.name,
+          dim: o.dimension_template,
+          long: tier.long,
+          long_pct: burnRate.budget_pct(tier, tier.long_seconds),
+        },
         description: (
-          'SLO {{ $labels.sli }} (objective: {{ $labels.objective }}) spent {{ $value }}%% of its ' +
-          '30-day error budget in the last %(long)s, and is still over-spending as of the last ' +
-          '%(short)s. The limit for this tier is %(long_pct)s%% per %(long)s (%(burn)gx the ' +
-          'sustainable pace); at that rate the whole month of budget is gone in %(exhaust)s. ' +
-          '%(dimension_hint)s ' +
-          'This is a budget alert, not an outage alert: the SLI may look fine on a 5-minute chart ' +
-          'and still be on track to miss the objective. Check the SLIs row of the dashboard with ' +
-          'the range set to %(long)s, %(dashboard_hint)s'
+          '{{ $labels.sli }}%(dim)s burned {{ printf "%%.1f" $value }}%% of its 30-day error ' +
+          'budget in the last %(long)s, and is still burning as of the last %(short)s. ' +
+          'Tier limit is %(long_pct)s%% per %(long)s — %(burn)gx the sustainable pace, which ' +
+          'exhausts the month in %(exhaust)s. Objective: {{ $labels.objective }}.%(hint)s ' +
+          'Budget alert, not an outage: a 5-minute chart can look healthy while the month is ' +
+          'still being missed. Dashboard: SLIs row at %(long)s, %(dashboard_hint)s'
         ) % {
+          dim: o.dimension_template,
           long: tier.long,
           short: tier.short,
           burn: tier.burn,
           long_pct: burnRate.budget_pct(tier, tier.long_seconds),
           exhaust: $.exhaustText(tier),
-          dimension_hint: o.dimension_hint,
+          hint: if o.dimension_hint == '' then '' else ' ' + o.dimension_hint,
           dashboard_hint: o.dashboard_hint,
         },
       },
@@ -148,11 +159,30 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
      */
     priority_label: 'priority',
     /**
-     * One sentence naming the label(s) that pinpoint what is burning, so an on-call
-     * reading the alert knows which dimension to look at. Aggregation labels are the
-     * SLI's business, so the wrapper cannot infer this.
+     * Names the burning dimension INLINE, right after the SLI, in both the summary and
+     * the description. Go template, evaluated by Grafana against the alert instance, so
+     * it must be guarded for SLIs that do not carry the label:
+     *
+     *     dimension_template: '{{ if $labels.chain_id }} on chain {{ $labels.chain_id }}{{ end }}'
+     *
+     * This exists because prose could not do the job. The previous version said "any
+     * chain_id label on this instance names the chain that is burning" — which is a
+     * description of where to find the answer rather than the answer, buried mid
+     * paragraph, in an alert whose whole purpose is to say WHICH of sixty-nine chains
+     * is burning. A notification is read as a one-line title first; the dimension has
+     * to be in that line.
+     *
+     * Leading space is the caller's, since only they know whether the text reads as a
+     * clause or a suffix.
      */
-    dimension_hint: 'Any aggregation label on this instance names the dimension that is burning.',
+    dimension_template: '',
+    /**
+     * Optional extra sentence about which labels pinpoint what is burning, appended
+     * after the objective. Superseded by `dimension_template` for the common case and
+     * empty by default; kept because a consumer with several aggregation labels may
+     * still want to explain them, and because it was the only mechanism before.
+     */
+    dimension_hint: '',
     /** How the description's closing "check the dashboard" sentence ends. */
     dashboard_hint: 'then the per-dimension panel for that indicator.',
     /**
