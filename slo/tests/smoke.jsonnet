@@ -7,7 +7,7 @@ local ds = { prometheus: { type: 'prometheus', uid: 'p' }, prometheus_uid: 'p' }
     name_prefix: 'Prod',
     labels: { environment: 'prod' },
     priority_label: 'og_priority',
-    dimension_hint: 'Any route label names the route that is burning.',
+    dimension_template: '{{ if $labels.route }} on route {{ $labels.route }}{{ end }}',
     dashboard_hint: 'then the per-route panel.',
   }),
   burn_panel: sloPanels.burn_rate(ds, fixtures.slis, { dimension_word: 'route' }),
