@@ -326,12 +326,26 @@
    * what a panel legend groups by, and `objective` travels with it so a burn rate is
    * never displayed without saying what it is burning.
    */
+  /**
+   * An SLI may additionally define `decorate(expr)` to attach labels only it can supply
+   * — a multi-dimensional SLI turning its dimension id into something a human reads,
+   * say, which `dimension_template` in slo/rule.libsonnet can then print.
+   *
+   * Applied OUTERMOST, after all the burn arithmetic, which is the only safe place for
+   * it: PromQL binary ops match on the full label set, so a label added to `bad` but not
+   * to the budget built from `events` silently yields no series at all rather than an
+   * error. Wrapping here also applies it once per rule instead of once per window —
+   * these expressions are already near the size where Amazon Managed Grafana's
+   * rule-group writes get flaky, so a per-window copy would be expensive.
+   */
   labelled(sli, expr)::
-    'label_replace(label_replace(%s, "sli", "%s", "", ""), "objective", "%s", "", "")' % [
-      expr,
-      sli.key,
-      sli.objective_text,
-    ],
+    local tagged =
+      'label_replace(label_replace(%s, "sli", "%s", "", ""), "objective", "%s", "", "")' % [
+        expr,
+        sli.key,
+        sli.objective_text,
+      ];
+    if std.objectHasAll(sli, 'decorate') then sli.decorate(tagged) else tagged,
 
   /**
    * The burn rate as a MULTIPLE of nominal budget spend, which is the number the
