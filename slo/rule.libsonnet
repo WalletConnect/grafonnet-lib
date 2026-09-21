@@ -74,6 +74,25 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
   rule(ds, folder_uid, slis, tier, opts = {})::
     local o = $.defaults + opts;
     local burnRate = o.burn_rate;
+    // The percent of the 30-day budget spent inside the long window — see
+    // burnRate.condition — as a NUMBER, for the annotations below.
+    //
+    // It has to come from `$values`, never from `$value`. In Grafana alerting `$value`
+    // is a STRING: the human-readable rendering of every captured value, e.g.
+    // `[ var='B' labels={sli="..."} value=12.3 ]`. Applying a float verb to it yields
+    // `%!f(string=...)` on a real firing, and `%!f(string=)` when nothing was captured
+    // at all — which is what the notification shows in place of the number.
+    // `$values.<refId>.Value` is the float64. `B` is the reduce node that
+    // alert_rule.libsonnet builds between the query (`A`) and the threshold (`C`), so
+    // it is the one carrying the expression's value.
+    //
+    // Guarded with `with`, because `$values` is empty whenever the rule captured
+    // nothing (NoData, or an evaluation error) and a bare `.Value` would render the
+    // same class of garbage this replaces.
+    //
+    // Interpolated into the annotation formats as `%(pct)s`: jsonnet's `%` substitutes
+    // values without rescanning them, so the `%.1f` inside needs no escaping.
+    local budgetPct = '{{ with $values.B }}{{ printf "%.1f" .Value }}{{ else }}?{{ end }}';
     // Instant, not range: the burn windows live inside the expression, so evaluating it
     // once per rule run is all the `Last` reducer can use. See instant_query.
     instantQuery(alertRule.prometheus(
@@ -98,8 +117,6 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
         long_window: tier.long,
       },
       annotations = {
-        // `$value` is the condition's value, which is the percent of the 30-day budget
-        // spent inside the long window — see burnRate.condition.
         // WHAT and WHERE first, in both fields. A notification is usually read as a
         // one-line title on a phone, so the burning dimension has to survive
         // truncation — `dimension_template` puts it immediately after the SLI name
@@ -109,15 +126,16 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
         // `.CommonAnnotations.summary` renders this and nothing else, so it has to carry
         // tier, indicator and dimension by itself. Numbers come last — they are the part
         // a truncated title can afford to lose.
-        summary: '%(prefix)s - SLO %(tier)s: {{ $labels.sli }}%(dim)s — {{ printf "%%.1f" $value }}%% of 30-day budget in %(long)s (limit %(long_pct)s%%)' % {
+        summary: '%(prefix)s - SLO %(tier)s: {{ $labels.sli }}%(dim)s — %(pct)s%% of 30-day budget in %(long)s (limit %(long_pct)s%%)' % {
           prefix: o.name_prefix,
           tier: tier.name,
           dim: o.dimension_template,
+          pct: budgetPct,
           long: tier.long,
           long_pct: burnRate.budget_pct(tier, tier.long_seconds),
         },
         description: (
-          '{{ $labels.sli }}%(dim)s burned {{ printf "%%.1f" $value }}%% of its 30-day error ' +
+          '{{ $labels.sli }}%(dim)s burned %(pct)s%% of its 30-day error ' +
           'budget in the last %(long)s, and is still burning as of the last %(short)s. ' +
           'Tier limit is %(long_pct)s%% per %(long)s — %(burn)gx the sustainable pace, which ' +
           'exhausts the month in %(exhaust)s. Objective: {{ $labels.objective }}.%(hint)s ' +
@@ -125,6 +143,7 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
           'still being missed. Dashboard: SLIs row at %(long)s, %(dashboard_hint)s'
         ) % {
           dim: o.dimension_template,
+          pct: budgetPct,
           long: tier.long,
           short: tier.short,
           burn: tier.burn,
@@ -135,6 +154,18 @@ local defaultBurnRate = import 'burn_rate.libsonnet';
         },
       },
       no_data_state = alertRule.noDataStates.OK,
+      // A burn-rate rule measures a 30-day budget; a datasource that errored for one
+      // evaluation is not evidence about that budget. Left at the library default
+      // (`Error`), Grafana raises a `DatasourceError` alert carrying THIS rule's
+      // annotations, so a transient query failure pages the service's on-call with a
+      // budget message whose every templated field is empty.
+      //
+      // The cost of `OK` is that a PERSISTENTLY broken rule goes quiet instead of
+      // shouting. That is the right trade here only because rule health is a different
+      // signal with a different audience: cover it with an alert on
+      // `grafana_alerting_rule_evaluation_failures_total`, which reaches whoever owns
+      // the monitoring stack rather than whoever is on call for the service.
+      exec_err_state = alertRule.execErrStates.OK,
     )),
 
   /**
