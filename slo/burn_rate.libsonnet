@@ -282,10 +282,72 @@
    * young-series case where it does not.
    */
   monthly_events(sli):: $.max_of([
-    { name: '30d', expr: sli.events('30d') },
+    { name: '30d', expr: $.events_30d(sli) },
     { name: '1d', expr: '(%s) * 30' % sli.events('1d') },
     { name: '1h', expr: '(%s) * 720' % sli.events('1h') },
   ]),
+
+  /**
+   * RECORDED 30-DAY COUNT (opt-in). The 30d term is by far the most expensive thing
+   * these rules evaluate: it reads a month of samples for every series behind the SLI,
+   * and `condition` spends it twice per SLI per tier, every evaluation. On a managed
+   * Prometheus that bills per sample read (AMP's QuerySamplesProcessed), it is ~95% of
+   * what the rules cost — measured on pay-core prod, one 30d scan of its SLIs is ~47M
+   * samples, at 4 scans/min/evaluator.
+   *
+   * A month's event count does not move meaningfully in ten minutes, so set this to
+   * have a Prometheus recording rule (`recording_group`) compute it once per `interval`
+   * and the rules read the recorded series instead:
+   *
+   *   burnRate + { recorded_events:: { metric: 'slo:events:increase30d', interval: '10m', lookback: '30m' } }
+   *
+   * `lookback` must exceed `interval` — an instant selector only looks back 5m, so a
+   * series recorded every 10m would be absent half the time without `last_over_time`.
+   * Two intervals' worth also rides out one missed ruler evaluation.
+   *
+   * If the recorded series is missing — the recording rule not provisioned yet, the
+   * ruler down, an SLI key renamed — `max_of` simply drops the term and the budget
+   * falls back to the 1d and 1h projections: the young-series behaviour above, never
+   * a disarmed rule. That is why only the 30d term is recorded; the short projections
+   * are cheap (1/30 and 1/720 of the cost) and stay live as the fallback.
+   *
+   * The recorded series carries an `sli` label to tell SLIs apart; it is aggregated
+   * away here so the result keeps exactly the SLI's own `by` labels and still matches
+   * `bad` one-to-one.
+   */
+  recorded_events:: null,
+
+  events_30d(sli)::
+    if $.recorded_events == null then sli.events('30d')
+    else 'max without (sli) (last_over_time(%s{sli="%s"}[%s]))' % [
+      $.recorded_events.metric,
+      sli.key,
+      $.recorded_events.lookback,
+    ],
+
+  /**
+   * The Prometheus recording-rule group `recorded_events` reads: one rule per SLI,
+   * recording its raw 30d event count under the shared metric name, told apart by the
+   * `sli` label. Provision it on the SAME Prometheus the alert rules query.
+   */
+  recording_group(slis, name = 'slo-recorded-events')::
+    assert $.recorded_events != null :
+           'burn_rate.recording_group: set `recorded_events` first; without it the rules never read what this records.';
+    local keys = [sli.key for sli in slis];
+    assert std.length(std.set(keys)) == std.length(keys) :
+           'burn_rate.recording_group: SLI keys must be unique, or two SLIs record into one series; got %s' % [keys];
+    {
+      name: name,
+      interval: $.recorded_events.interval,
+      rules: [
+        {
+          record: $.recorded_events.metric,
+          expr: sli.events('30d'),
+          labels: { sli: sli.key },
+        }
+        for sli in slis
+      ],
+    },
 
   /**
    * Percent of the 30-day error budget a window is allowed to spend at this tier's

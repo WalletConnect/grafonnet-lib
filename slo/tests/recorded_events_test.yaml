@@ -1,0 +1,39 @@
+# promtool tests for the opt-in recorded 30d term (`recorded_events` in burn_rate.libsonnet).
+#
+# Two properties, and they pull in opposite directions:
+#   - while the recording rule runs, the budget is EXACTLY the inline budget, so opting
+#     in changes what the rules cost and nothing about when they fire;
+#   - while it does not, the budget falls back to the 1d/1h projections instead of
+#     disappearing, so a missing recording rule degrades an SLI to the young-series
+#     estimate and never disarms it.
+#
+# The traffic is shaped so the two are distinguishable. Two heavy days (600 per 10m)
+# then one light one (10 per 10m) put the true 30d count at 174,240 — four times either
+# projection (1d x 30 = 1h x 720 = 43,200). A budget of 1742 can only come from the 30d
+# term, and 432 only from the projections.
+#
+# `evaluation_interval: 20m`: nothing here moves faster, and the recording rule shares
+# a group with what reads it, so it is never a step stale (see render_rules.jsonnet).
+rule_files:
+  - recorded_rules.generated.json
+
+evaluation_interval: 20m
+
+tests:
+  - name: recorded 30d term matches the inline budget exactly
+    interval: 10m
+    input_series:
+      - series: 'fixture_total'
+        values: '0+600x288 172800+10x144'
+    alert_rule_test:
+      - eval_time: 4320m
+        alertname: RECORDED_BUDGET_PARITY
+        exp_alerts: []
+      # 1% of 174,240 — the 30d term, read back from the recorded series. Reads 432
+      # if `events_30d` stops finding what `recording_group` writes (a metric name or
+      # `sli` label drifting between the two).
+      - eval_time: 4320m
+        alertname: RECORDED_BUDGET
+        exp_alerts:
+          - exp_annotations:
+              budget: '1742'
