@@ -44,7 +44,7 @@ jobs:
         working-directory: slo/tests
         run: |
           jsonnet -S -m . render_rules.jsonnet
-          promtool test rules burn_rate_test.yaml tier_windows_test.yaml budget_panels_test.yaml
+          promtool test rules burn_rate_test.yaml tier_windows_test.yaml budget_panels_test.yaml recorded_events_test.yaml recorded_fallback_test.yaml
 
       # A green build that never evaluated a rule is worse than a red one.
       - name: Assert the tools were real
