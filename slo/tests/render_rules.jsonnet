@@ -86,7 +86,7 @@ local panelGroup(tier) = {
 // the state between deploying the alerts and the ruler's first evaluation — or forever,
 // if the recording rule is never provisioned.
 local recorded = burnRate + {
-  recorded_events:: { metric: 'slo:events:increase30d', interval: '10m', lookback: '30m' },
+  recorded_events:: { metric: 'slo:events:increase30d', interval: '1h', lookback: '2h15m' },
 };
 local plain = fixtures.plain;
 local recordedGroup = {

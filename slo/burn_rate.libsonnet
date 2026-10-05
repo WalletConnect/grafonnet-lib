@@ -295,15 +295,22 @@
    * what the rules cost — measured on pay-core prod, one 30d scan of its SLIs is ~47M
    * samples, at 4 scans/min/evaluator.
    *
-   * A month's event count does not move meaningfully in ten minutes, so set this to
+   * A month's event count does not move meaningfully in an hour, so set this to
    * have a Prometheus recording rule (`recording_group`) compute it once per `interval`
    * and the rules read the recorded series instead:
    *
-   *   burnRate + { recorded_events:: { metric: 'slo:events:increase30d', interval: '10m', lookback: '30m' } }
+   *   burnRate + { recorded_events:: { metric: 'slo:events:increase30d', interval: '1h', lookback: '2h15m' } }
    *
-   * `lookback` must exceed `interval` — an instant selector only looks back 5m, so a
-   * series recorded every 10m would be absent half the time without `last_over_time`.
-   * Two intervals' worth also rides out one missed ruler evaluation.
+   * `lookback` must exceed `interval`: the newest recorded sample is up to one interval
+   * old, and an instant selector only looks back 5m, so the series would be absent most
+   * of the time without `last_over_time`. Two intervals plus slack (2h15m for 1h) also
+   * ride out one missed ruler evaluation and late-landing runs. Erring long is harmless:
+   * it only means a broken recording rule serves a slightly older 30d count before the
+   * fallback takes over.
+   *
+   * Hourly costs 1/6 of 10m for the recording rule (one 30d scan an hour), and the
+   * staleness it adds — about one hour's traffic at each end of a 30-day window, ~0.1%
+   * of the budget — is below anything the tiers can resolve.
    *
    * If the recorded series is missing — the recording rule not provisioned yet, the
    * ruler down, an SLI key renamed — `max_of` simply drops the term and the budget

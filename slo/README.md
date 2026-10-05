@@ -76,7 +76,7 @@ pay-core prod. Opt in to reading it from a recording rule instead:
 
 ```jsonnet
 local burnRate = (import 'grafonnet-lib/slo/burn_rate.libsonnet') + {
-  recorded_events:: { metric: 'slo:events:increase30d', interval: '10m', lookback: '30m' },
+  recorded_events:: { metric: 'slo:events:increase30d', interval: '1h', lookback: '2h15m' },
 };
 
 // Pass the same burnRate everywhere the budget is computed, or the panels and the
