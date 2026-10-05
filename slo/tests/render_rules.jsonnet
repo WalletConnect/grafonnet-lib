@@ -76,6 +76,42 @@ local panelGroup(tier) = {
   ],
 };
 
+// The opt-in recorded 30d term (`recorded_events`), against the same fixtures. The
+// recording rules sit FIRST in the same group as the rules that read them: Prometheus
+// evaluates a group's rules in order and later rules see earlier ones' samples at the
+// same timestamp, so the recorded term is never a step stale here — any difference
+// from the inline budget is the expression's fault, not the cadence's.
+//
+// `fallback` reads the recorded metric with NO recording rule provisioned, which is
+// the state between deploying the alerts and the ruler's first evaluation — or forever,
+// if the recording rule is never provisioned.
+local recorded = burnRate + {
+  recorded_events:: { metric: 'slo:events:increase30d', interval: '1h', lookback: '2h15m' },
+};
+local plain = fixtures.plain;
+local recordedGroup = {
+  name: 'slo-recorded-events',
+  rules: recorded.recording_group([plain]).rules + [
+    {
+      alert: 'RECORDED_BUDGET_PARITY',
+      expr: 'abs(%s - %s) > 0.001' % [recorded.budget_events(plain), burnRate.budget_events(plain)],
+    },
+    {
+      alert: 'RECORDED_BUDGET',
+      expr: recorded.budget_events(plain),
+      annotations: { budget: '{{ printf "%.0f" $value }}' },
+    },
+  ],
+};
+local fallbackGroup = {
+  name: 'slo-recorded-events-fallback',
+  rules: [{
+    alert: 'FALLBACK_BUDGET',
+    expr: recorded.budget_events(plain),
+    annotations: { budget: '{{ printf "%.0f" $value }}' },
+  }],
+};
+
 local manifest(groups) = std.manifestJsonEx({ groups: groups }, '  ');
 
 {
@@ -84,4 +120,6 @@ local manifest(groups) = std.manifestJsonEx({ groups: groups }, '  ');
   // Fast tier only: the identity is algebraic and window-independent, so evaluating it
   // at three windows would pay the 3d window's cost to re-test the same division.
   'panel_rules.generated.json': manifest([panelGroup(t) for t in burnRate.tiers if t.key == 'fast']),
+  'recorded_rules.generated.json': manifest([recordedGroup]),
+  'recorded_fallback_rules.generated.json': manifest([fallbackGroup]),
 }

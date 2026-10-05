@@ -67,6 +67,32 @@ become `for_each` keys and cannot be known after apply — list all three group 
 (`SLO Fast Burn`, `SLO Slow Burn`, `SLO Error Budget`) there too. A group that renders
 but is not listed is silently never provisioned.
 
+## Cutting query cost: record the 30-day count
+
+Every burn condition sizes its budget from `increase(events[30d])`, and spends it twice
+per SLI per tier, every evaluation. That one term is almost all of what these rules cost
+on a Prometheus that bills per sample read (AMP's QuerySamplesProcessed) — ~95% on
+pay-core prod. Opt in to reading it from a recording rule instead:
+
+```jsonnet
+local burnRate = (import 'grafonnet-lib/slo/burn_rate.libsonnet') + {
+  recorded_events:: { metric: 'slo:events:increase30d', interval: '1h', lookback: '2h15m' },
+};
+
+// Pass the same burnRate everywhere the budget is computed, or the panels and the
+// rules size it differently:
+sloRule.ruleGroups(ds, folder_uid, slis, { burn_rate: burnRate, ... })
+sloPanels.burn_rate(ds, slis, { burn_rate: burnRate, ... })
+
+// And provision this group on the Prometheus the rules query (one Prometheus
+// rule-group namespace, e.g. `aws_prometheus_rule_group_namespace`):
+std.manifestYamlDoc({ groups: [burnRate.recording_group(slis)] })
+```
+
+Firing behaviour is unchanged while the recording rule runs (`tests/recorded_events_test.yaml`).
+If it stops, or has not run yet, the budget falls back to the 1d/1h projections — the
+young-series estimate — rather than disarming the rules (`tests/recorded_fallback_test.yaml`).
+
 ## Things that will bite you
 
 **Read `burn_rate.libsonnet`'s header before tuning anything.** The tier percentages are

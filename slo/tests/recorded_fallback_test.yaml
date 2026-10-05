@@ -1,0 +1,21 @@
+# The other half of recorded_events_test.yaml: the same traffic and the same recorded-
+# mode budget, with NO recording rule provisioned. The rule must still produce a budget
+# — 1% of the 43,200-event projection — rather than an empty result, which in a burn
+# condition would mean an SLI that can never alert.
+rule_files:
+  - recorded_fallback_rules.generated.json
+
+evaluation_interval: 20m
+
+tests:
+  - name: a missing recording rule falls back to the projections, not to nothing
+    interval: 10m
+    input_series:
+      - series: 'fixture_total'
+        values: '0+600x288 172800+10x144'
+    alert_rule_test:
+      - eval_time: 4320m
+        alertname: FALLBACK_BUDGET
+        exp_alerts:
+          - exp_annotations:
+              budget: '432'
