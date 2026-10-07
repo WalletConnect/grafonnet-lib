@@ -111,7 +111,10 @@ Every window ends 14h back (`settle_hours`): Cost Explorer reports late, and a w
 over unsettled hours under-reads spend. So nothing here fires sooner than about a day
 after a regression starts. The queries use CloudWatch metric-search mode, so a consumer
 that patches every CloudWatch model into SQL mode must skip models that already set
-`metricQueryType`. Tested by `tests/cost_smoke.jsonnet`.
+`metricQueryType`. Dashboard panels from the same budget and tiers: `cost.hourlyPanel(opts)` (hourly cost
+with a line at each tier's pace), `cost.monthPanel(opts)` and `cost.trailingPanel(opts)`
+(spend this month and over the trailing 30 days, as gauges against the budget). Tested
+by `tests/cost_smoke.jsonnet`.
 
 ## Things that will bite you
 

@@ -192,6 +192,136 @@
       rules: [$.rule(t, o) for t in $.tiers] + [$.staleRule(o)],
     },
 
+  /**
+   * DASHBOARD PANELS — the alerting made visible, from the same budget and tiers.
+   *
+   * There is deliberately no rolling-window burn chart: the input must be read at each
+   * hour's Maximum (see THE INPUT), CloudWatch metric math has no moving sum, and a
+   * Grafana-side window transform is not available on every instance this ships to.
+   * Lines at each tier's hourly pace say the same thing more plainly — a tier fires when
+   * the hourly cost averages above its line over that tier's windows.
+   */
+  local panelTarget(o) = {
+    refId: 'HourlyCost',
+    datasource: { type: 'cloudwatch', uid: o.datasource_uid },
+    alias: 'cost per hour',
+    queryMode: 'Metrics',
+    metricQueryType: 0,
+    metricEditorMode: 0,
+    region: 'default',
+    namespace: o.namespace,
+    metricName: o.metric_name,
+    dimensions: {},
+    matchExact: true,
+    statistic: 'Maximum',
+    period: '3600',
+    id: '',
+    expression: '',
+  },
+
+  /** Dollars per hour at the budget's sustainable pace. */
+  hourly_pace(budget_usd):: budget_usd / $.month_hours,
+
+  hourlyPanel(opts)::
+    local o = $.defaults + opts;
+    local pace = $.hourly_pace(o.budget_usd);
+    local tierColor = { P2: 'red', P3: 'orange' };
+    local sorted = std.sort($.tiers, function(t) t.burn);
+    {
+      type: 'timeseries',
+      title: 'AWS cost per hour (budget $%g/month)' % o.budget_usd,
+      description: std.join(' ', [
+        "The whole AWS account's cost for each billed hour, from Cost Explorer.",
+        'Lines mark each alert tier at its hourly pace: %s ($%.2f/h is the budget spent evenly over 30 days).' % [
+          std.join(', ', ['%gx = $%.2f/h (%s, %s)' % [t.burn, t.burn * pace, t.name, t.priority] for t in sorted]),
+          pace,
+        ],
+        'A tier fires when the cost averages above its line over that tier\'s long AND short windows, both ending %dh ago.' % $.settle_hours,
+        'The newest ~%dh read low: Cost Explorer reports late and those hours are still filling in, so judge spend left of that.' % $.settle_hours,
+      ]),
+      datasource: { type: 'cloudwatch', uid: o.datasource_uid },
+      fieldConfig: {
+        defaults: {
+          unit: 'currencyUSD',
+          decimals: 2,
+          min: 0,
+          color: { mode: 'palette-classic' },
+          custom: {
+            drawStyle: 'line',
+            lineInterpolation: 'stepAfter',
+            lineWidth: 1,
+            fillOpacity: 15,
+            showPoints: 'never',
+            spanNulls: false,
+            axisSoftMax: std.foldl(function(m, t) std.max(m, t.burn), $.tiers, 0) * pace * 1.1,
+            thresholdsStyle: { mode: 'line' },
+          },
+          thresholds: {
+            mode: 'absolute',
+            steps: [{ color: 'green', value: null }] + [
+              { color: if t.burn == 1 then 'yellow' else tierColor[t.priority], value: t.burn * pace }
+              for t in sorted
+            ],
+          },
+        },
+        overrides: [],
+      },
+      options: {
+        legend: { displayMode: 'list', placement: 'bottom', showLegend: true },
+        tooltip: { mode: 'single', sort: 'none' },
+      },
+      targets: [panelTarget(o)],
+    },
+
+  local spendGauge(o, title, timeFrom, description) = {
+    type: 'gauge',
+    title: title,
+    description: description,
+    timeFrom: timeFrom,
+    datasource: { type: 'cloudwatch', uid: o.datasource_uid },
+    fieldConfig: {
+      defaults: {
+        unit: 'currencyUSD',
+        decimals: 0,
+        min: 0,
+        max: o.budget_usd,
+        color: { mode: 'thresholds' },
+        thresholds: {
+          mode: 'absolute',
+          steps: [
+            { color: 'green', value: null },
+            { color: 'yellow', value: 0.9 * o.budget_usd },
+            { color: 'red', value: o.budget_usd },
+          ],
+        },
+      },
+      overrides: [],
+    },
+    options: {
+      reduceOptions: { calcs: ['sum'], fields: '', values: false },
+      showThresholdLabels: false,
+      showThresholdMarkers: true,
+    },
+    targets: [panelTarget(o)],
+  },
+
+  /** Spend in the trailing 30 days against the monthly budget — the like-for-like number. */
+  trailingPanel(opts)::
+    local o = $.defaults + opts;
+    spendGauge(o, 'AWS cost, last 30 days (budget $%g)' % o.budget_usd, '30d', std.join(' ', [
+      'Sum of hourly cost over the trailing 30 days, against the $%g monthly budget: the like-for-like comparison, since the tiers measure pace against a 30-day month.' % o.budget_usd,
+      'Reads up to ~%dh of spend low, because the newest hours are still filling in.' % $.settle_hours,
+    ])),
+
+  /** Spend since the 1st, against the monthly budget. */
+  monthPanel(opts)::
+    local o = $.defaults + opts;
+    spendGauge(o, 'AWS cost, this month so far (budget $%g)' % o.budget_usd, 'now/M', std.join(' ', [
+      'Sum of hourly cost since the 1st of the month, against the $%g monthly budget.' % o.budget_usd,
+      'Early in the month this is naturally a small share of the budget; compare it to how much of the month has passed, or read the 30-day gauge.',
+      'Reads up to ~%dh of spend low, because the newest hours are still filling in.' % $.settle_hours,
+    ])),
+
   defaults:: {
     /** Monthly budget for the whole account, in USD. */
     budget_usd: 0,

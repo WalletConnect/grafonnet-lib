@@ -47,4 +47,23 @@ assert fast.no_data_state == 'OK' && stale.no_data_state == 'Alerting';
 assert std.length(std.findSubstr('$values.LS', fast.annotations.summary)) == 1;
 
 assert std.length(group.rules) == 4;
-group
+
+// The panels draw the same budget and tiers the rules use. At $720/month the pace is
+// $1/h, so each tier's line sits at exactly its burn multiple.
+local panelOpts = { budget_usd: 720, datasource_uid: 'cw' };
+local hourly = cost.hourlyPanel(panelOpts);
+assert [s.value for s in hourly.fieldConfig.defaults.thresholds.steps] == [null, 1, 1.5, 3] :
+       hourly.fieldConfig.defaults.thresholds.steps;
+local month = cost.monthPanel(panelOpts);
+local trailing = cost.trailingPanel(panelOpts);
+assert month.fieldConfig.defaults.max == 720 && trailing.fieldConfig.defaults.max == 720;
+assert month.timeFrom == 'now/M' && trailing.timeFrom == '30d';
+assert month.options.reduceOptions.calcs == ['sum'];
+// Same read as the rules: one point per hour at its Maximum.
+assert std.all([
+  t.statistic == 'Maximum' && t.period == '3600'
+  for p in [hourly, month, trailing]
+  for t in p.targets
+]);
+
+group + { panels:: [hourly, month, trailing] }
