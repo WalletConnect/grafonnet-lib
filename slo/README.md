@@ -93,6 +93,26 @@ Firing behaviour is unchanged while the recording rule runs (`tests/recorded_eve
 If it stops, or has not run yet, the budget falls back to the 1d/1h projections — the
 young-series estimate — rather than disarming the rules (`tests/recorded_fallback_test.yaml`).
 
+## Cost budgets: `cost.libsonnet`
+
+The same multiwindow shape applied to a service's whole AWS bill against a monthly
+budget in dollars. It reads one CloudWatch metric holding the account's cost per billed
+hour (pay-core's `terraform/cost-reporter` publishes it from Cost Explorer) and yields
+one rule group: three tiers (3x over 24h+6h at P2, 1.5x over 72h+12h and 1x over
+7d+24h at P3) plus a guard that fires when the metric stops arriving.
+
+```jsonnet
+local cost = import 'grafonnet-lib/slo/cost.libsonnet';
+cost.ruleGroup({ budget_usd: 1375, datasource_uid: ds.cloudwatch_uid, folder_uid: folder_uid,
+                 name_prefix: vars.envCapitalized, labels: vars.labels })
+```
+
+Every window ends 14h back (`settle_hours`): Cost Explorer reports late, and a window
+over unsettled hours under-reads spend. So nothing here fires sooner than about a day
+after a regression starts. The queries use CloudWatch metric-search mode, so a consumer
+that patches every CloudWatch model into SQL mode must skip models that already set
+`metricQueryType`. Tested by `tests/cost_smoke.jsonnet`.
+
 ## Things that will bite you
 
 **Read `burn_rate.libsonnet`'s header before tuning anything.** The tier percentages are
