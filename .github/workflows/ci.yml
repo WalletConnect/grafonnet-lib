@@ -40,6 +40,12 @@ jobs:
         working-directory: slo/tests
         run: jsonnet -o /dev/null smoke.jsonnet
 
+      # The cost rules are CloudWatch queries + Grafana expressions, so promtool cannot
+      # evaluate them; this pins their windows, thresholds and query shape instead.
+      - name: Render cost smoke test
+        working-directory: slo/tests
+        run: jsonnet -o /dev/null cost_smoke.jsonnet
+
       - name: Evaluate SLO rules
         working-directory: slo/tests
         run: |
